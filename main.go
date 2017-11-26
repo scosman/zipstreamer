@@ -1,14 +1,14 @@
 package main
 
 import (
-  zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
+	"context"
+	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-        "context"
 )
 
 func main() {
@@ -35,5 +35,5 @@ func main() {
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	<-sig
 	log.Print("Received SIGTERM, shutting down...")
-        httpServer.Shutdown(context.Background())
+	httpServer.Shutdown(context.Background())
 }
