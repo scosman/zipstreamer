@@ -48,12 +48,14 @@ func (z *ZipStream) StreamAllFiles() error {
 		}
 		entryWriter, err := zipWriter.CreateHeader(header)
 		if err != nil {
+			z.closeForError()
 			return err
 		}
 
 		// TODO: flush after every 32kb instead of every file to reduce memory
 		_, err = io.Copy(entryWriter, resp.Body)
 		if err != nil {
+			z.closeForError()
 			return err
 		}
 
@@ -65,4 +67,19 @@ func (z *ZipStream) StreamAllFiles() error {
 	}
 
 	return nil
+}
+
+func (z *ZipStream) closeForError() {
+	hj, ok := z.destination.(http.Hijacker)
+
+	if !ok {
+		return
+	}
+
+	conn, _, err := hj.Hijack()
+	if err != nil {
+		return
+	}
+
+	conn.Close()
 }

@@ -124,8 +124,5 @@ func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"archive.zip\"")
 	w.WriteHeader(http.StatusOK)
-	err = zipStreamer.StreamAllFiles()
-	if err != nil {
-		w.Write([]byte(`{"status": "error", "error": "internal error"}`))
-	}
+	zipStreamer.StreamAllFiles()
 }
