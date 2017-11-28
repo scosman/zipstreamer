@@ -66,3 +66,19 @@ func TestWriteZipWithSomeInvalid(t *testing.T) {
 		t.Fatal("output file is zero")
 	}
 }
+
+const testFile3Path = "test-out3.zip"
+
+func TestWriteZipWithAllInvalid(t *testing.T) {
+	newfile, _ := os.Create(testFile3Path)
+
+	z, err := zip_streamer.NewZipStream([]*zip_streamer.FileEntry{invalidFileEntry}, newfile)
+	if err != nil || z == nil {
+		t.Fatal("constructor failed")
+	}
+	err = z.StreamAllFiles()
+	if err == nil {
+		t.Fatalf("empty zip didn't error")
+	}
+	newfile.Close()
+}
