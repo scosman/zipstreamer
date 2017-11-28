@@ -30,6 +30,7 @@ func NewZipStream(entries []*FileEntry, w io.Writer) (*ZipStream, error) {
 
 func (z *ZipStream) StreamAllFiles() error {
 	zipWriter := zip.NewWriter(z.destination)
+	success := 0
 
 	for _, entry := range z.entries {
 		resp, err := http.Get(entry.Url().String())
@@ -61,6 +62,12 @@ func (z *ZipStream) StreamAllFiles() error {
 		if ok {
 			flushingWriter.Flush()
 		}
+
+		success++
+	}
+
+	if success == 0 {
+		return errors.New("empty file - all files failed")
 	}
 
 	return zipWriter.Close()
