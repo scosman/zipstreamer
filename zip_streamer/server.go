@@ -124,5 +124,25 @@ func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"archive.zip\"")
 	w.WriteHeader(http.StatusOK)
-	zipStreamer.StreamAllFiles()
+	err = zipStreamer.StreamAllFiles()
+
+	if err != nil {
+		// Close the connection so the client gets an error instead of 200 but invalid file
+		closeForError(w)
+	}
+}
+
+func closeForError(w http.ResponseWriter) {
+	hj, ok := w.(http.Hijacker)
+
+	if !ok {
+		return
+	}
+
+	conn, _, err := hj.Hijack()
+	if err != nil {
+		return
+	}
+
+	conn.Close()
 }
