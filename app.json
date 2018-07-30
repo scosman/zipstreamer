@@ -1,0 +1,12 @@
+{
+  "name": "ZipStreamer",
+  "description": "A small server which can combine any number of URLs into a zip file, and stream it on the fly to a client.",
+  "repository": "https://github.com/scosman/zipstreamer",
+  "env": {
+    "ZS_URL_PREFIX": {
+      "description": "if set, requires that the URL of files included in the zip start with this prefix. Useful to preventing others from using your server to serve their files. (OPTIONAL)",
+      "required": "false"
+    }
+  },
+  "keywords": ["zip", "gzip", "streaming", "golang"]
+}
