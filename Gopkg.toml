@@ -36,3 +36,8 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[metadata.heroku]
+  root-package = "github.com/scosman/zipstreamer"
+  go-version = "go1.10.3"
+
