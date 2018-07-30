@@ -13,7 +13,7 @@ func TestUnmarshalBodyInvalid(t *testing.T) {
 	p, err := zip_streamer.UnmarshalPayload(invalidPayload)
 
 	if err == nil || p != nil {
-		t.Fatalf("allowed invalid payload: ", p)
+		t.Fatalf("allowed invalid payload: %v", p)
 	}
 }
 

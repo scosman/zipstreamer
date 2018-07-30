@@ -38,7 +38,7 @@ func TestWriteZip(t *testing.T) {
 	}
 	err = z.StreamAllFiles()
 	if err != nil {
-		t.Fatalf("issue writting zip: ", err)
+		t.Fatalf("issue writting zip: %v", err)
 	}
 	newfile.Close()
 
@@ -58,7 +58,7 @@ func TestWriteZipWithSomeInvalid(t *testing.T) {
 	}
 	err = z.StreamAllFiles()
 	if err != nil {
-		t.Fatalf("issue writting zip: ", err)
+		t.Fatalf("issue writting zip: %v", err)
 	}
 	newfile.Close()
 
