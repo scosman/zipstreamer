@@ -5,7 +5,7 @@
   "env": {
     "ZS_URL_PREFIX": {
       "description": "if set, requires that the URL of files included in the zip start with this prefix. Useful to preventing others from using your server to serve their files. (OPTIONAL)",
-      "required": "false"
+      "required": false
     }
   },
   "keywords": ["zip", "gzip", "streaming", "golang"]
