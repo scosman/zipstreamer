@@ -3,6 +3,7 @@ package zip_streamer
 import (
 	"encoding/json"
 	"github.com/google/uuid"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -58,7 +59,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.router.ServeHTTP(w, r)
+	handlers.CORS()(s.router).ServeHTTP(w, r)
 }
 
 func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
