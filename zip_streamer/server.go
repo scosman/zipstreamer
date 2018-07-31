@@ -59,7 +59,10 @@ func NewServer() *Server {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	handlers.CORS()(s.router).ServeHTTP(w, r)
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	headersOk := handlers.AllowedHeaders([]string{"Content-Type", "X-Requested-With", "*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	handlers.CORS(originsOk, headersOk, methodsOk)(s.router).ServeHTTP(w, r)
 }
 
 func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
