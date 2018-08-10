@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 )
 
 type ZipStream struct {
@@ -43,8 +44,9 @@ func (z *ZipStream) StreamAllFiles() error {
 		}
 
 		header := &zip.FileHeader{
-			Name:   entry.ZipPath(),
-			Method: z.CompressionMethod,
+			Name:     entry.ZipPath(),
+			Method:   z.CompressionMethod,
+			Modified: time.Now(),
 		}
 		entryWriter, err := zipWriter.CreateHeader(header)
 		if err != nil {
