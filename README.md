@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.com/scosman/zipstreamer.svg?branch=master)](https://travis-ci.com/scosman/zipstreamer)
+
 ## About
 
 ZipStreamer is a golang project for building and streaming zip files from a series of web links. For example, if you have 200 files on S3, and you want to download a zip file of them, you can do so in 1 request to this server.
