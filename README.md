@@ -16,7 +16,7 @@ Highlights include:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers.
+Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and `/create_download_link`.
 
 ## HTTP Endpoints
 
