@@ -43,7 +43,7 @@ This endpoint creates a temporary link which can be used to download a zip via a
 
 *Important*:
 
- - This stores the link in an in memory cache, so it's not suitable for deploying to a cluster.
+ - This stores the link in an in memory cache, so it's not suitable for deploying to a cluster. However if using heroku and requests are coming from a browser, you can use a cluster if you enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) which ensures requests from a given client are routed to the same server.
  - These links are only live for 60 seconds. They are expected to be used immediately and are not long living.
 
 It expects the same body format as `/download`.
