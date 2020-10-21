@@ -12,11 +12,21 @@ Highlights include:
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
  - It includes a HTTP server, but can be used as a library (see zip_streamer.go).
 
-## Deploy
+## Deploy - Heroku
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and `/create_download_link`.
+
+## Deploy - Docker
+
+[View on Docker Hub](https://hub.docker.com/r/langboost/zipstreamer)
+
+```
+docker pull langboost/zipstreamer
+
+docker run --rm -p '4008:4008' langboost/zipstreamer
+```
 
 ## HTTP Endpoints
 
