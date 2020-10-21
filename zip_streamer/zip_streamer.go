@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"io"
+	"os"
 	"net/http"
 	"time"
 )
@@ -19,11 +20,16 @@ func NewZipStream(entries []*FileEntry, w io.Writer) (*ZipStream, error) {
 		return nil, errors.New("must have at least 1 entry")
 	}
 
+	// Default to no compression to save CPU. Also ideal for streaming.
+	compressMethod := zip.Store
+	val, ok := os.LookupEnv("DEFLATE")
+	if ok && val == "1" {
+		compressMethod = zip.Deflate
+	}
 	z := ZipStream{
 		entries:     entries,
 		destination: w,
-		// Default to no compression to save CPU. Also ideal for streaming.
-		CompressionMethod: zip.Store,
+		CompressionMethod: compressMethod,
 	}
 
 	return &z, nil
