@@ -53,16 +53,35 @@ func (z *ZipStream) StreamAllFiles() error {
 			return err
 		}
 
-		// TODO: flush after every 32kb instead of every file to reduce memory
-		_, err = io.Copy(entryWriter, resp.Body)
-		if err != nil {
-			return err
-		}
+		// flush after every 32kb instead of every file to reduce memory
+		for {
+			_, err := io.CopyN(entryWriter, resp.Body, 32<<10)
+			if err != nil {
 
-		zipWriter.Flush()
-		flushingWriter, ok := z.destination.(http.Flusher)
-		if ok {
-			flushingWriter.Flush()
+				// Files chunks that are less than 32KB should be flushed.
+				// Chunks of the file has been copied, so we can flush.
+				zipWriter.Flush()
+				flushingWriter, ok := z.destination.(http.Flusher)
+				if ok {
+					flushingWriter.Flush()
+				}
+
+				if errors.Is(err, io.EOF) {
+
+					// We have completed copying the file.
+					break
+				}
+
+				return err
+			}
+
+			// Files chunks that do not fit in 32KB should be flushed.
+			// Chunks of the file has been copied, so we can flush.
+			zipWriter.Flush()
+			flushingWriter, ok := z.destination.(http.Flusher)
+			if ok {
+				flushingWriter.Flush()
+			}
 		}
 
 		success++
