@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.com/scosman/zipstreamer.svg?branch=master)](https://travis-ci.com/scosman/zipstreamer)
+[![Build and Test](https://github.com/scosman/zipstreamer/actions/workflows/test.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/test.yml)
 
 ## About
 
