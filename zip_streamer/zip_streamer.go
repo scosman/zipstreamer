@@ -53,7 +53,6 @@ func (z *ZipStream) StreamAllFiles() error {
 			return err
 		}
 
-		// TODO: flush after every 32kb instead of every file to reduce memory
 		_, err = io.Copy(entryWriter, resp.Body)
 		if err != nil {
 			return err
