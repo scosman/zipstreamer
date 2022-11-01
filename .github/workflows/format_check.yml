@@ -14,7 +14,7 @@ jobs:
         with:
           go-version: 1.19.x
 
-      - name: Check format with gofmt
+      - name: Gofmt 
 	run: if [ "$(gofmt -d -l $(find . -type f -name '*.go'| grep -v "/vendor/\|/.git/") | wc -l)" -gt 0 ]; then exit 1; fi
 
       - name: Check go vet
