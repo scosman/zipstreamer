@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
 func main() {

@@ -1,10 +1,11 @@
 package testing
 
 import (
-	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 	"os"
 	"path"
 	"testing"
+
+	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
 const validUrl = "https://pbs.twimg.com/media/DPRhf4ZX0AAFW1_.jpg"
