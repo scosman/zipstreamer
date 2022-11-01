@@ -32,7 +32,7 @@ func main() {
 	}()
 
 	// Gracefully shutdown when SIGTERM is received
-	sig := make(chan os.Signal)
+	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	<-sig
 	log.Print("Received SIGTERM, shutting down...")
