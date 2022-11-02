@@ -66,8 +66,9 @@ Call this endpoint with a `link_id` generated with `/create_download_link` to do
 
 These ENV vars can be used to config the server:
 
- - `PORT` - which port the HTTP server binds to. If not set defaults to 4008
- - `ZS_URL_PREFIX` - if set, requires that the URL of files downloaded start with this prefix. Useful to preventing others from using your server to serve their files.
+ - `PORT` - Defaults to 4008. Sets which port the HTTP server binds to.
+ - `ZS_URL_PREFIX` - If set, requires that the URL of files downloaded start with this prefix. Useful to preventing others from using your server to serve their files.
+ - `ZS_COMPRESSION` - Defaults to no compression. It's not universally known, but zip files can be uncompressed, and used as a simple packaging format (combined many files into one). Set to `DEFLATE` to use zip deflate compression. **WARNING - enabling compression uses CPU, and will greatly reduce throughput of server**. Note: for file formats already optimized for size (JPEGs, MP4s), zip compression will often increase the total zip file size.
 
 ## Why
 

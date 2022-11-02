@@ -1,13 +1,15 @@
 package zip_streamer
 
 import (
+	"archive/zip"
 	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 type zipEntry struct {
@@ -38,8 +40,9 @@ func UnmarshalPayload(payload []byte) ([]*FileEntry, error) {
 }
 
 type Server struct {
-	router    *mux.Router
-	linkCache LinkCache
+	router      *mux.Router
+	linkCache   LinkCache
+	Compression bool
 }
 
 func NewServer() *Server {
@@ -47,8 +50,9 @@ func NewServer() *Server {
 
 	timeout := time.Second * 60
 	server := Server{
-		router:    r,
-		linkCache: NewLinkCache(&timeout),
+		router:      r,
+		linkCache:   NewLinkCache(&timeout),
+		Compression: false,
 	}
 
 	r.HandleFunc("/download", server.HandlePostDownload).Methods("POST")
@@ -122,6 +126,10 @@ func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter, 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"status":"error","error":"invalid entries"}`))
 		return
+	}
+
+	if s.Compression {
+		zipStreamer.CompressionMethod = zip.Deflate
 	}
 
 	// need to write the header before bytes
