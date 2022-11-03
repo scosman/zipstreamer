@@ -15,7 +15,7 @@ Highlights include:
 
 ## Deploy
 
-### Heroku One Click
+### Heroku - One Click Deploy
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
@@ -25,11 +25,33 @@ Be sure to enable [session afinity](https://devcenter.heroku.com/articles/sessio
 
 This repo contains an dockerfile, and an image is hosted [on Docker Hub](https://hub.docker.com/r/scosman/zipstreamer).
 
+#### Build Your Own Image
+
+To build your own image, clone the repo and run: 
+
+```
+docker build --tag docker-zipstreamer .
+# Starts on port 8080
+docker run -p '8080:4008' docker-zipstreamer
+```
+
+#### Run Docker Hub Image
+
 ```
 docker pull scosman/zipstreamer
 # Starts on port 8080
 docker run -p '8080:4008' scosman/zipstreamer
 ```
+
+### Google Cloud Run - One Click Deploy, Serverless
+
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
+**Important** Be sure to enable [session afinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link` -- Cloud Run may scale up to multiple containers automatically.
+
+Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture (AWS Lamba, Google Cloud Functions, etc).
+
+TODO port
 
 ## HTTP Endpoints
 
