@@ -28,4 +28,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: scosman/packages/zipstreamer
+          tags: latest
           tag_with_sha: true
