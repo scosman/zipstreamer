@@ -15,9 +15,21 @@ Highlights include:
 
 ## Deploy
 
+### Heroku One Click
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and `/create_download_link`.
+Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and using `/create_download_link`.
+
+### Docker 
+
+This repo contains an dockerfile, and an image is hosted [on Docker Hub](https://hub.docker.com/r/scosman/zipstreamer).
+
+```
+docker pull scosman/zipstreamer
+# Starts on port 8080
+docker run -p '8080:4008' scosman/zipstreamer
+```
 
 ## HTTP Endpoints
 
