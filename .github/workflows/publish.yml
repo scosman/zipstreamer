@@ -2,6 +2,7 @@ name: Publish to Docker
 on:
   push:
     branches:
+      - master
       - github-packages
 jobs:
   publish:
@@ -26,5 +27,5 @@ jobs:
           username: scosman
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: scosman/publish-packages/game
+          repository: scosman/packages/zipstreamer
           tag_with_sha: true
