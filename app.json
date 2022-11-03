@@ -4,9 +4,16 @@
   "repository": "https://github.com/scosman/zipstreamer",
   "env": {
     "ZS_URL_PREFIX": {
-      "description": "if set, requires that the URL of files included in the zip start with this prefix. Useful to preventing others from using your server to serve their files. (OPTIONAL)",
+      "description": "[OPTIONAL] if set, requires that the URL of files included in the zip start with this prefix. Useful to preventing others from using your server to serve their files.",
+      "required": false
+    },
+    "ZS_COMPRESSION": {
+      "description": "[OPTIONAL] if set to 'DEFLATE', will enable zip compression on output files. WARNING - enabling compression uses CPU, and will greatly reduce throughput of server",
       "required": false
     }
   },
-  "keywords": ["zip", "gzip", "streaming", "golang"]
+  "keywords": ["zip", "gzip", "streaming", "golang"],
+  "options": {
+    "concurrency": 500
+  }
 }
