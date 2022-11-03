@@ -76,7 +76,7 @@ Cloud Run is ideal for zipstreamer, as it routes many requests to a single conta
 
 ### Docker 
 
-This repo contains an dockerfile, and an image is hosted [on Docker Hub](https://hub.docker.com/r/scosman/zipstreamer).
+This repo contains an dockerfile, and an image is published [on Github Packages](https://github.com/scosman/zipstreamer/pkgs/container/packages%2Fzipstreamer).
 
 #### Build Your Own Image
 
@@ -88,12 +88,14 @@ docker build --tag docker-zipstreamer .
 docker run --env PORT=8080 -p 8080:8080 docker-zipstreamer
 ```
 
-#### Run Docker Hub Image
+#### Run Offical Package from Github Packages
+
+Currently every change to master it published as a package. To use these offical packages:
 
 ```
-docker pull scosman/zipstreamer
+docker pull ghcr.io/scosman/packages/zipstreamer:latest
 # Start on port 8080
-docker run --env PORT=8080 -p 8080:8080 scosman/zipstreamer
+docker run --env PORT=8080 -p 8080:8080 ghcr.io/scosman/packages/zipstreamer:latest
 ```
 
 ## Config
