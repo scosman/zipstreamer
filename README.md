@@ -19,7 +19,7 @@ Highlights include:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-Be sure to enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and using `/create_download_link`.
+Be sure to enable [session affinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and using `/create_download_link`.
 
 ### Docker 
 
@@ -49,7 +49,7 @@ docker run --env PORT=8080 -p 8080:8080 scosman/zipstreamer
 
 **Important** 
  - The one-click deploy button has [a bug](https://github.com/GoogleCloudPlatform/cloud-run-button/issues/232) and may force you to set the optional environment variables. If the server isn't working, check `ZS_URL_PREFIX` is blank in the Cloud Run console.
- - Be sure to enable [session afinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link`. Cloud Run may scale up to multiple containers automatically.
+ - Be sure to enable [session affinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link`. Cloud Run may scale up to multiple containers automatically.
 
 Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture like AWS Lamba or Google Cloud Functions.
 
@@ -78,8 +78,8 @@ This endpoint creates a temporary link which can be used to download a zip via a
 
 *Important*:
 
- - This stores the link in an in memory cache, so it's not suitable for deploying to a cluster. However if using heroku and requests are coming from a browser, you can use a cluster if you enable [session afinity](https://devcenter.heroku.com/articles/session-affinity) which ensures requests from a given client are routed to the same server.
  - These links are only live for 60 seconds. They are expected to be used immediately and are not long living.
+ - This stores the link in an in memory cache, so it's not suitable for deploying to a multi-server cluster without extra configuration. If you are hosting a multi-server cluster make sure to enable Session Affinity on your host, so that requests from a given client are routed to a consistent correct host. See the deploy section for details on Heroku and Google Cloud Run.
 
 It expects the same body format as `/download`.
 
