@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - cloudrun_fix_required
 jobs:
   publish:
     runs-on: ubuntu-latest
