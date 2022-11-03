@@ -31,27 +31,27 @@ To build your own image, clone the repo and run:
 
 ```
 docker build --tag docker-zipstreamer .
-# Starts on port 8080
-docker run -p '8080:4008' docker-zipstreamer
+# Start on port 8080
+docker run --env PORT=8080 -p 8080:8080 docker-zipstreamer
 ```
 
 #### Run Docker Hub Image
 
 ```
 docker pull scosman/zipstreamer
-# Starts on port 8080
-docker run -p '8080:4008' scosman/zipstreamer
+# Start on port 8080
+docker run --env PORT=8080 -p 8080:8080 scosman/zipstreamer
 ```
 
 ### Google Cloud Run - One Click Deploy, Serverless
 
 [![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
 
-**Important** Be sure to enable [session afinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link` -- Cloud Run may scale up to multiple containers automatically.
+**Important** 
+ - The one-click deploy button has [a bug](https://github.com/GoogleCloudPlatform/cloud-run-button/issues/232) and may force you to set the optional environment variables. If the server isn't working, check `ZS_URL_PREFIX` is blank in the Cloud Run console.
+ - Be sure to enable [session afinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link`. Cloud Run may scale up to multiple containers automatically.
 
-Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture (AWS Lamba, Google Cloud Functions, etc).
-
-TODO port
+Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture like AWS Lamba or Google Cloud Functions.
 
 ## HTTP Endpoints
 

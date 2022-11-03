@@ -12,5 +12,8 @@
       "required": false
     }
   },
-  "keywords": ["zip", "gzip", "streaming", "golang"]
+  "keywords": ["zip", "gzip", "streaming", "golang"],
+  "options": {
+    "concurrency": 500
+  }
 }
