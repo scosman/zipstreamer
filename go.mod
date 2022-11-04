@@ -3,9 +3,12 @@ module github.com/scosman/zipstreamer
 go 1.19
 
 require (
-	github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
-	github.com/gorilla/handlers v1.4.0
-	github.com/gorilla/mux v1.6.2
+	github.com/google/uuid v1.3.0
+	github.com/gorilla/handlers v1.5.1
+	github.com/gorilla/mux v1.8.0
 )
 
-require github.com/gorilla/context v1.1.1 // indirect
+require (
+	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+)
