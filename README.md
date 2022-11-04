@@ -67,7 +67,7 @@ Be sure to enable [session affinity](https://devcenter.heroku.com/articles/sessi
 
 ### Google Cloud Run - One Click Deploy, Serverless
 
-[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run?git_repo=https%3A%2F%2Fgithub.com%2Fscosman%2Fzipstreamer)
+[<img src="https://deploy.cloud.run/button.svg" width=180 alt="Run on Google Cloud">](https://deploy.cloud.run?git_repo=https%3A%2F%2Fgithub.com%2Fscosman%2Fzipstreamer)
 
 **Important** 
  - The one-click deploy button has [a bug](https://github.com/GoogleCloudPlatform/cloud-run-button/issues/232) and may force you to set the optional environment variables. If the server isn't working, check `ZS_URL_PREFIX` is blank in the Cloud Run console.
