@@ -60,7 +60,7 @@ Call this endpoint with a `link_id` generated with `/create_download_link` to do
 
 ### Heroku - One Click Deploy
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/scosman/zipstreamer/tree/master)
 
 Be sure to enable [session affinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and using `/create_download_link`.
 
