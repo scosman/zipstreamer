@@ -3,6 +3,7 @@ package zip_streamer
 import (
 	"archive/zip"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -40,9 +41,10 @@ func UnmarshalPayload(payload []byte) ([]*FileEntry, error) {
 }
 
 type Server struct {
-	router      *mux.Router
-	linkCache   LinkCache
-	Compression bool
+	router            *mux.Router
+	linkCache         LinkCache
+	Compression       bool
+	ListfileUrlPrefix string
 }
 
 func NewServer() *Server {
@@ -56,6 +58,7 @@ func NewServer() *Server {
 	}
 
 	r.HandleFunc("/download", server.HandlePostDownload).Methods("POST")
+	r.HandleFunc("/download", server.HandleGetDownload).Methods("GET")
 	r.HandleFunc("/create_download_link", server.HandleCreateLink).Methods("POST")
 	r.HandleFunc("/download_link/{link_id}", server.HandleDownloadLink).Methods("GET")
 
@@ -105,7 +108,47 @@ func (s *Server) HandlePostDownload(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.streamEntries(fileEntries, w, req)
+	s.streamEntries(fileEntries, w)
+}
+
+func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
+	params := req.URL.Query()
+	listfileUrl := params.Get("furl")
+	listFileId := params.Get("fid")
+	if listfileUrl == "" && s.ListfileUrlPrefix != "" && listFileId != "" {
+		listfileUrl = s.ListfileUrlPrefix + listFileId
+	}
+	if listfileUrl == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"status":"error","error":"invalid parameters"}`))
+		return
+	}
+
+	fileEntries, err := retrieveFileEntriesFromUrl(listfileUrl)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"status":"error","error":"file not found"}`))
+		return
+	}
+
+	s.streamEntries(fileEntries, w)
+}
+
+func retrieveFileEntriesFromUrl(listfileUrl string) ([]*FileEntry, error) {
+	listfileResp, err := http.Get(listfileUrl)
+	if err != nil {
+		return nil, err
+	}
+	defer listfileResp.Body.Close()
+	if listfileResp.StatusCode != http.StatusOK {
+		return nil, errors.New("List File Server Errror")
+	}
+	body, err := ioutil.ReadAll(listfileResp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return UnmarshalPayload(body)
 }
 
 func (s *Server) HandleDownloadLink(w http.ResponseWriter, req *http.Request) {
@@ -117,10 +160,10 @@ func (s *Server) HandleDownloadLink(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.streamEntries(fileEntries, w, req)
+	s.streamEntries(fileEntries, w)
 }
 
-func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter, req *http.Request) {
+func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter) {
 	zipStreamer, err := NewZipStream(fileEntries, w)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
