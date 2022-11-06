@@ -117,13 +117,15 @@ docker run --env PORT=8080 -p 8080:8080 docker-zipstreamer
 
 #### Run Official Package from Github Packages
 
-Currently every change to master it published as a package. To use these official packages:
+Official packages are published on Github packages. To pull latest stable release:
 
 ```
-docker pull ghcr.io/scosman/packages/zipstreamer:latest
+docker pull ghcr.io/scosman/packages/zipstreamer:stable
 # Start on port 8080
-docker run --env PORT=8080 -p 8080:8080 ghcr.io/scosman/packages/zipstreamer:latest
+docker run --env PORT=8080 -p 8080:8080 ghcr.io/scosman/packages/zipstreamer:stable
 ```
+
+Note: `stable` pulls the latest github release. Use `ghcr.io/scosman/packages/zipstreamer:latest` for top of tree.
 
 ## Config
 
