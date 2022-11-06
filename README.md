@@ -48,29 +48,29 @@ This endpoint takes a http POST body containing the JSON description of the desi
 
 ### GET /download
 
-Returns a zip file, from a JSON zip description to be hosted on another server. This is useful over the POST endpoint in a few use cases:
+Returns a zip file, from a JSON zip description hosted on another server. This is useful over the POST endpoint in a few use cases:
 
- - You want to hide from the client where the original descriptor files are hosted (see zsid parameter)
+ - You want to hide from the client where the original files are hosted (see zsid parameter)
  - Use cases where POST requests aren't easy to adopt (traditional static webpages)
  - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` as an alternative if you prefer writing this logic client side.
 
-This endpoint requires one of two query parameters describing where to fetch the JSON . If both are provided, only `zsurl` will be used:
+This endpoint requires one of two query parameters describing where to find the JSON descriptor. If both are provided, only `zsurl` will be used:
 
- - `zsurl`: the full URL to the JSON file describing the zip. Example: `zipstreamer.yourserver.com/download?furl=https://gist.githubusercontent.com/scosman/449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
+ - `zsurl`: the full URL to the JSON file describing the zip. Example: `zipstreamer.yourserver.com/download?zsurl=https://gist.githubusercontent.com/scosman/449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
  - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://gist.githubusercontent.com/scosman/"` and `zipstreamer.yourserver.com/download?zsid=449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
 
 ### POST /create_download_link
 
-This endpoint takes the JSON zip description in the POST body, stores it in a local cache, allowing the caller to fetch the file via an additional call to `GET /download_link/{link_id}`.
+This endpoint takes the JSON zip description in the POST body, stores it in a local cache, allowing the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
 
-This is useful for if you want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prefer a server-driven approach.
+This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prefer a server-driven approach.
 
 *Important*:
 
  - These links only live for 60 seconds. They are expected to be used immediately.
- - This stores the link in an in memory cache, so it's not suitable for deploying to a multi-server cluster without extra configuration. If you are hosting a multi-server cluster make sure to enable Session Affinity on your host, so that requests from a given client are routed to a consistent correct host. See the deploy section for examples of how to configure Heroku and Google Cloud Run.
+ - This stores the link in an in-memory cache, so it's not suitable for deploying to a multi-server cluster without extra configuration. If you are hosting a multi-server cluster, see the deployment section for options.
 
-Here is an example response body containing the link ID. See docs for `GET /download_link/{link_id}` below for how to fetch this file:
+Here is an example response body containing the link ID. See docs for `GET /download_link/{link_id}` below for how to fetch the zip file:
 
 ```
 {
