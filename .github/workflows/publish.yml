@@ -1,11 +1,5 @@
 name: Docker Package
-on:
-  push:
-    branches:
-      - master
-      - tag_releases
-    tag: 
-      - '**'
+on: [push]
 jobs:
   publish:
     runs-on: ubuntu-latest
