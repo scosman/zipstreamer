@@ -28,5 +28,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: scosman/packages/zipstreamer
-          tags: ${{ join(['latestDev','releastTag2',github.ref, (startsWith(github.ref, 'refs/tags/beta') && 'latest-beta' || 'non-beta'), ',') }}
+          tags: ${{ join(['latestDev','releastTag2',github.ref, (startsWith(github.ref, 'refs/tags/beta') && 'latest-beta' || 'non-beta')], ',') }}
           tag_with_sha: true
