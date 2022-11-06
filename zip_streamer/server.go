@@ -113,8 +113,8 @@ func (s *Server) HandlePostDownload(w http.ResponseWriter, req *http.Request) {
 
 func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
 	params := req.URL.Query()
-	listfileUrl := params.Get("furl")
-	listFileId := params.Get("fid")
+	listfileUrl := params.Get("zsurl")
+	listFileId := params.Get("zsid")
 	if listfileUrl == "" && s.ListfileUrlPrefix != "" && listFileId != "" {
 		listfileUrl = s.ListfileUrlPrefix + listFileId
 	}
