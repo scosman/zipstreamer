@@ -1,8 +1,9 @@
-name: Publish to Docker
+name: Docker Package
 on:
   push:
     branches:
       - master
+      - tag_releases
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -27,5 +28,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: scosman/packages/zipstreamer
-          tags: latest
+          tags: 
+            - latestDev
+            - releastTag2
+            - ${{ github.ref_name }}
+            - ${{ (github.ref_type == 'tag' && startsWith(github.ref_name, 'beta')) && 'latest-beta' || 'non-release' }}
           tag_with_sha: true
