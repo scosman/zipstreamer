@@ -15,6 +15,7 @@ import (
 func main() {
 	zipServer := zip_streamer.NewServer()
 	zipServer.Compression = (os.Getenv("ZS_COMPRESSION") == "DEFLATE")
+	zipServer.ListfileUrlPrefix = os.Getenv("ZS_LISTFILE_URL_PREFIX")
 
 	port := os.Getenv("PORT")
 	if port == "" {

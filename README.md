@@ -12,39 +12,65 @@ Highlights include:
  - Low memory: the files are streamed out to the client immediately
  - Low CPU: the default server doesn't compress files, only packages them into a zip, so there's minimal CPU load (configurable)
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
- - It includes a HTTP server, but can be used as a library (see zip_streamer.go).
+ - It includes a HTTP server, but can be used as a library (see `zip_streamer.go`)
 
-## HTTP Endpoints
+## JSON Zip File Descriptor
 
-**POST /download**
+Each HTTP endpoint requires a JSON description of the desired zip file.
 
-This endpoint takes a post, and returns a zip file.
+The JSON format root object should have an "entries" property, which holds an array of the files. Each entry requires 2 properties:
 
-It expects a JSON body defining which files to include in the zip. The `ZipPath` is the path and filename in the resulting zip file (it should be a relative path).
+ - `Url` REQUIRED: the URL of the file to include in the zip. Zipstreamer will fetch this via a GET request. The file must be public; if it is private, most file hosts provide query string authentication options for private files, which work well with Zipstreamer (example [AWS S3 Docs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html)).
+ - `ZipPath`  REQUIRED: the path and filename where this entry should appear in the resulting zip file. This is a relative path to the root of the zip file.
 
-Example body:
+Example JSON description with 2 files:
 
 ```
 {
   "entries": [
-    {"Url":"https://server.com/image1.jpg","ZipPath":"image1.jpg"},
-    {"Url":"https://server.com/image2.jpg","ZipPath":"in-a-sub-folder/image2.jpg"}
+    {
+      "Url":"https://server.com/image1.jpg",
+      "ZipPath":"image1.jpg"
+    },
+    {
+      "Url":"https://server.com/image2.jpg",
+      "ZipPath":"in-a-sub-folder/image2.jpg"
+    }
   ]
 }
 ```
 
-**POST /create_download_link**
+## HTTP Endpoints
 
-This endpoint creates a temporary link which can be used to download a zip via a GET. This is helpful as on a webapp it can be painful to POST results, and trigger a "Save File" popup with the result. With this, you can create the link in a POST, then open the download link in a new window.
+### POST /download
+
+This endpoint takes a http POST body containing the JSON description of the desired zip file, and returns a zip file.
+
+### GET /download
+
+Returns a zip file, from a JSON zip description hosted on another server. This is useful over the POST endpoint in a few use cases:
+
+ - You want to hide from the client where the original files are hosted (see zsid parameter)
+ - Use cases where POST requests aren't easy to adopt (traditional static webpages)
+ - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` as an alternative if you prefer writing this logic client side.
+
+This endpoint requires one of two query parameters describing where to find the JSON descriptor. If both are provided, only `zsurl` will be used:
+
+ - `zsurl`: the full URL to the JSON file describing the zip. Example: `zipstreamer.yourserver.com/download?zsurl=https://gist.githubusercontent.com/scosman/449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
+ - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://gist.githubusercontent.com/scosman/"` and `zipstreamer.yourserver.com/download?zsid=449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
+
+### POST /create_download_link
+
+This endpoint takes the JSON zip description in the POST body, stores it in a local cache, allowing the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
+
+This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prefer a server-driven approach.
 
 *Important*:
 
- - These links are only live for 60 seconds. They are expected to be used immediately and are not long living.
- - This stores the link in an in memory cache, so it's not suitable for deploying to a multi-server cluster without extra configuration. If you are hosting a multi-server cluster make sure to enable Session Affinity on your host, so that requests from a given client are routed to a consistent correct host. See the deploy section for details on Heroku and Google Cloud Run.
+ - These links only live for 60 seconds. They are expected to be used immediately.
+ - This stores the link in an in-memory cache, so it's not suitable for deploying to a multi-server cluster without extra configuration. If you are hosting a multi-server cluster, see the deployment section for options.
 
-It expects the same body format as `/download`.
-
-Here is an example response body:
+Here is an example response body containing the link ID. See docs for `GET /download_link/{link_id}` below for how to fetch the zip file:
 
 ```
 {
@@ -53,7 +79,7 @@ Here is an example response body:
 }
 ```
 
-**GET /download_link/{link_id}**
+### GET /download_link/{link_id}
 
 Call this endpoint with a `link_id` generated with `/create_download_link` to download that zip file.
 
@@ -89,9 +115,9 @@ docker build --tag docker-zipstreamer .
 docker run --env PORT=8080 -p 8080:8080 docker-zipstreamer
 ```
 
-#### Run Offical Package from Github Packages
+#### Run Official Package from Github Packages
 
-Currently every change to master it published as a package. To use these offical packages:
+Currently every change to master it published as a package. To use these official packages:
 
 ```
 docker pull ghcr.io/scosman/packages/zipstreamer:latest
@@ -106,6 +132,7 @@ These ENV vars can be used to config the server:
  - `PORT` - Defaults to 4008. Sets which port the HTTP server binds to.
  - `ZS_URL_PREFIX` - If set, requires that the URL of files downloaded start with this prefix. Useful to preventing others from using your server to serve their files.
  - `ZS_COMPRESSION` - Defaults to no compression. It's not universally known, but zip files can be uncompressed, and used as a simple packaging format (combined many files into one). Set to `DEFLATE` to use zip deflate compression. **WARNING - enabling compression uses CPU, and will greatly reduce throughput of server**. Note: for file formats already optimized for size (JPEGs, MP4s), zip compression will often increase the total zip file size.
+  - `ZS_LISTFILE_URL_PREFIX` - See documentation for `GET /download`
 
 ## Why
 
