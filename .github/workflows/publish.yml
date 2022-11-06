@@ -22,7 +22,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build container
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v3
         with:
           username: scosman
           password: ${{ secrets.GITHUB_TOKEN }}
