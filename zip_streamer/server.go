@@ -141,7 +141,7 @@ func retrieveFileEntriesFromUrl(listfileUrl string) ([]*FileEntry, error) {
 	}
 	defer listfileResp.Body.Close()
 	if listfileResp.StatusCode != http.StatusOK {
-		return nil, errors.New("List File Server Errror")
+		return nil, errors.New("List File Server Error")
 	}
 	body, err := ioutil.ReadAll(listfileResp.Body)
 	if err != nil {
