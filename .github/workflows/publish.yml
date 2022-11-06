@@ -1,8 +1,5 @@
-name: Publish to Docker
-on:
-  push:
-    branches:
-      - master
+name: Docker Package
+on: [push]
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -20,6 +17,9 @@ jobs:
       - name: Test
         run: go test -v ./...
 
+      - name: Echo build ref
+        run: echo ${{ github.ref }}
+
       - name: Build container
         uses: docker/build-push-action@v1
         with:
@@ -27,5 +27,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: scosman/packages/zipstreamer
-          tags: latest
+          tags: ${{ format('{0},{1}', (startsWith(github.ref, 'refs/heads/master') && 'latest' || 'dev_branch'), (startsWith(github.ref, 'refs/tags/v') && 'stable' || 'non-stable')) }}
           tag_with_sha: true
+          tag_with_ref: true
