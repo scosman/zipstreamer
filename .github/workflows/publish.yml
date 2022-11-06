@@ -17,6 +17,9 @@ jobs:
       - name: Test
         run: go test -v ./...
 
+      - name: Print refs
+        run: echo ${{ github.ref }}
+
       - name: Build container
         uses: docker/build-push-action@v1
         with:
@@ -24,6 +27,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: scosman/packages/zipstreamer
-          tags: ${{ format('{0},{1},{2},{3}', (startsWith(github.ref, 'refs/') && 'startWithRefs' || 'notStartRefs'), 'releastTag2' , 'tag3', (startsWith(github.ref, 'refs/tags/beta') && 'latest-beta' || 'non-beta')) }}
+          tags: ${{ format('{0},{1},{2},{3}', (startsWith(github.ref, 'refs/heads') && 'startWithRefs' || 'notStartRefs'), 'releastTag2' , 'tag3', (startsWith(github.ref, 'refs/tags/beta') && 'latest-beta' || 'non-beta')) }}
           tag_with_sha: true
           tag_with_ref: true
