@@ -10,6 +10,10 @@
     "ZS_COMPRESSION": {
       "description": "[OPTIONAL] if set to 'DEFLATE', will enable zip compression on output files. WARNING - enabling compression uses CPU, and will greatly reduce throughput of server",
       "required": false
+    },
+    "ZS_LISTFILE_URL_PREFIX": {
+      "description": "[OPTIONAL] The prefix of the JSON zip descriptor URL for `GET /download` endpoint, used in conjunction with the `zsid` query parameter. See docs for `GET /download` for details",
+      "required": false
     }
   },
   "keywords": ["zip", "gzip", "streaming", "golang"],
