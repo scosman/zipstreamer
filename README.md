@@ -18,7 +18,7 @@ Highlights include:
 
 Each HTTP endpoint requires a JSON description of the desired zip file.
 
-The JSON format root object should have an "entries" property, which holds an array of the files. Each entry requres 2 properties:
+The JSON format root object should have an "entries" property, which holds an array of the files. Each entry requires 2 properties:
 
  - `Url` REQUIRED: the URL of the file to include in the zip. Zipstreamer will fetch this via a GET request. The file must be public; if it is private, most file hosts provide query string authentication options for private files, which work well with Zipstreamer (example [AWS S3 Docs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html)).
  - `ZipPath`  REQUIRED: the path and filename where this entry should appear in the resulting zip file. This is a relative path to the root of the zip file.
@@ -52,18 +52,18 @@ Returns a zip file, from a JSON zip description to be hosted on another server. 
 
  - You want to hide from the client where the original descriptor files are hosted (see zsid parameter)
  - Use cases where POST requests aren't easy to adopt (traditional static webpages)
- - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` as an alternitive if you prefer writing this logic client side.
+ - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` as an alternative if you prefer writing this logic client side.
 
 This endpoint requires one of two query parameters describing where to fetch the JSON . If both are provided, only `zsurl` will be used:
 
  - `zsurl`: the full URL to the JSON file describing the zip. Example: `zipstreamer.yourserver.com/download?furl=https://gist.githubusercontent.com/scosman/449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
- - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment varible. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, reveiling only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://gist.githubusercontent.com/scosman/"` and `zipstreamer.yourserver.com/download?zsid=449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
+ - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://gist.githubusercontent.com/scosman/"` and `zipstreamer.yourserver.com/download?zsid=449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
 
 ### POST /create_download_link
 
 This endpoint takes the JSON zip description in the POST body, stores it in a local cache, allowing the caller to fetch the file via an additional call to `GET /download_link/{link_id}`.
 
-This is useful for if you want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prever a server-driven approach.
+This is useful for if you want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prefer a server-driven approach.
 
 *Important*:
 
@@ -115,9 +115,9 @@ docker build --tag docker-zipstreamer .
 docker run --env PORT=8080 -p 8080:8080 docker-zipstreamer
 ```
 
-#### Run Offical Package from Github Packages
+#### Run Official Package from Github Packages
 
-Currently every change to master it published as a package. To use these offical packages:
+Currently every change to master it published as a package. To use these official packages:
 
 ```
 docker pull ghcr.io/scosman/packages/zipstreamer:latest
