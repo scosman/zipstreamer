@@ -1,4 +1,4 @@
-<h1 align="center"><img alt="Zipstreamer Logo" src="https://user-images.githubusercontent.com/848343/200590777-b1bb9c3f-f2d9-4206-984d-dc0b0174e3b9.png" width="240"></h1>
+<h1 align="center"><img alt="Zipstreamer Logo" src="https://user-images.githubusercontent.com/848343/200610334-9e5f681b-878a-44d8-9b29-f58399549f8c.png" width="240"></h1>
 
 [![Build and Test](https://github.com/scosman/zipstreamer/actions/workflows/test.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/test.yml)
 [![Format and Vet](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml)
