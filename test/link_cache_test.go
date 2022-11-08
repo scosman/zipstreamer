@@ -1,9 +1,10 @@
 package testing
 
 import (
-	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 	"testing"
 	"time"
+
+	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
 func TestLinkCache(t *testing.T) {
@@ -11,7 +12,7 @@ func TestLinkCache(t *testing.T) {
 	if cache.Get("a") != nil {
 		t.Fatal("cache not empty")
 	}
-	r := make([]*zip_streamer.FileEntry, 0)
+	r := zip_streamer.NewZipDescriptor()
 	cache.Set("a", r)
 	if cache.Get("a") == nil {
 		t.Fatal("cache didn't store entry")
@@ -21,7 +22,7 @@ func TestLinkCache(t *testing.T) {
 func TestLinkCacheTimeout(t *testing.T) {
 	timeout := time.Millisecond * 30
 	cache := zip_streamer.NewLinkCache(&timeout)
-	cache.Set("a", make([]*zip_streamer.FileEntry, 0))
+	cache.Set("a", zip_streamer.NewZipDescriptor())
 	if cache.Get("a") == nil {
 		t.Fatal("cache didn't store entry")
 	}

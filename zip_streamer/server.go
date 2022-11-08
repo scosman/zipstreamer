@@ -2,8 +2,8 @@ package zip_streamer
 
 import (
 	"archive/zip"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -12,33 +12,6 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
-
-type zipEntry struct {
-	Url     string
-	ZipPath string
-}
-
-type zipPayload struct {
-	Entries []zipEntry
-}
-
-func UnmarshalPayload(payload []byte) ([]*FileEntry, error) {
-	var parsed zipPayload
-	err := json.Unmarshal(payload, &parsed)
-	if err != nil {
-		return nil, err
-	}
-
-	results := make([]*FileEntry, 0)
-	for _, entry := range parsed.Entries {
-		fileEntry, err := NewFileEntry(entry.Url, entry.ZipPath)
-		if err == nil {
-			results = append(results, fileEntry)
-		}
-	}
-
-	return results, nil
-}
 
 type Server struct {
 	router            *mux.Router
@@ -84,7 +57,7 @@ func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte(`{"status":"ok","link_id":"` + linkId + `"}`))
 }
 
-func (s *Server) parseZipRequest(w http.ResponseWriter, req *http.Request) ([]*FileEntry, error) {
+func (s *Server) parseZipRequest(w http.ResponseWriter, req *http.Request) (*ZipDescriptor, error) {
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -92,23 +65,23 @@ func (s *Server) parseZipRequest(w http.ResponseWriter, req *http.Request) ([]*F
 		return nil, err
 	}
 
-	fileEntries, err := UnmarshalPayload(body)
+	ZipDescriptor, err := UnmarshalJsonZipDescriptor(body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"status":"error","error":"invalid body"}`))
 		return nil, err
 	}
 
-	return fileEntries, nil
+	return ZipDescriptor, nil
 }
 
 func (s *Server) HandlePostDownload(w http.ResponseWriter, req *http.Request) {
-	fileEntries, err := s.parseZipRequest(w, req)
+	zipDescriptor, err := s.parseZipRequest(w, req)
 	if err != nil {
 		return
 	}
 
-	s.streamEntries(fileEntries, w)
+	s.streamEntries(zipDescriptor, w)
 }
 
 func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
@@ -124,17 +97,17 @@ func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fileEntries, err := retrieveFileEntriesFromUrl(listfileUrl)
+	zipDescriptor, err := retrieveZipDescriptorFromUrl(listfileUrl)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(`{"status":"error","error":"file not found"}`))
 		return
 	}
 
-	s.streamEntries(fileEntries, w)
+	s.streamEntries(zipDescriptor, w)
 }
 
-func retrieveFileEntriesFromUrl(listfileUrl string) ([]*FileEntry, error) {
+func retrieveZipDescriptorFromUrl(listfileUrl string) (*ZipDescriptor, error) {
 	listfileResp, err := http.Get(listfileUrl)
 	if err != nil {
 		return nil, err
@@ -148,23 +121,23 @@ func retrieveFileEntriesFromUrl(listfileUrl string) ([]*FileEntry, error) {
 		return nil, err
 	}
 
-	return UnmarshalPayload(body)
+	return UnmarshalJsonZipDescriptor(body)
 }
 
 func (s *Server) HandleDownloadLink(w http.ResponseWriter, req *http.Request) {
 	linkId := mux.Vars(req)["link_id"]
-	fileEntries := s.linkCache.Get(linkId)
-	if fileEntries == nil {
+	zipDescriptor := s.linkCache.Get(linkId)
+	if zipDescriptor == nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(`{"status":"error","error":"link not found"}`))
 		return
 	}
 
-	s.streamEntries(fileEntries, w)
+	s.streamEntries(zipDescriptor, w)
 }
 
-func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter) {
-	zipStreamer, err := NewZipStream(fileEntries, w)
+func (s *Server) streamEntries(zipDescriptor *ZipDescriptor, w http.ResponseWriter) {
+	zipStreamer, err := NewZipStream(zipDescriptor.Files(), w)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"status":"error","error":"invalid entries"}`))
@@ -177,7 +150,7 @@ func (s *Server) streamEntries(fileEntries []*FileEntry, w http.ResponseWriter) 
 
 	// need to write the header before bytes
 	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", "attachment; filename=\"archive.zip\"")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", zipDescriptor.EscapedSuggestedFilename()))
 	w.WriteHeader(http.StatusOK)
 	err = zipStreamer.StreamAllFiles()
 
