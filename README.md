@@ -120,11 +120,11 @@ Be sure to enable [session affinity](https://devcenter.heroku.com/articles/sessi
 
 [<img src="https://deploy.cloud.run/button.svg" width=180 alt="Run on Google Cloud">](https://deploy.cloud.run?git_repo=https%3A%2F%2Fgithub.com%2Fscosman%2Fzipstreamer)
 
+Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture like AWS Lamba or Google Cloud Functions.
+
 **Important** 
  - The one-click deploy button has [a bug](https://github.com/GoogleCloudPlatform/cloud-run-button/issues/232) and may force you to set the optional environment variables. If the server isn't working, check `ZS_URL_PREFIX` is blank in the Cloud Run console.
  - Be sure to enable [session affinity](https://cloud.google.com/run/docs/configuring/session-affinity) if you're using using `/create_download_link`. Cloud Run may scale up to multiple containers automatically.
-
-Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture like AWS Lamba or Google Cloud Functions.
 
 <a name="deploy-docker-a"></a>
 ### Docker 
