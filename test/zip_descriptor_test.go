@@ -6,10 +6,6 @@ import (
 	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
-var invalidPayload = []byte(`{"entries": "dfdf"}`)
-var emptyPayload = []byte(`{"entries": []}`)
-var validPayload = []byte(`{"entries": [{"Url":"https://a.com/1","ZipPath":"file1.jpg"},{"Url":"https://a.com/2","ZipPath":"file2.jpg"}]}`)
-
 func TestNewZipDescriptor(t *testing.T) {
 	zd := zip_streamer.NewZipDescriptor()
 
@@ -22,6 +18,8 @@ func TestNewZipDescriptor(t *testing.T) {
 	}
 }
 
+var invalidPayload = []byte(`{"entries": "dfdf"}`)
+
 func TestUnmarshalJsonInvalid(t *testing.T) {
 	p, err := zip_streamer.UnmarshalJsonZipDescriptor(invalidPayload)
 
@@ -29,6 +27,8 @@ func TestUnmarshalJsonInvalid(t *testing.T) {
 		t.Fatalf("allowed invalid payload: %v", p)
 	}
 }
+
+var emptyPayload = []byte(`{"entries": []}`)
 
 func TestUnmarshaJsonEmpty(t *testing.T) {
 	r, err := zip_streamer.UnmarshalJsonZipDescriptor(emptyPayload)
@@ -41,6 +41,24 @@ func TestUnmarshaJsonEmpty(t *testing.T) {
 		t.Fatal("non-empty empty payload")
 	}
 }
+
+var validPayloadLegacy = []byte(`{"entries": [{"Url":"https://a.com/1","ZipPath":"file1.jpg"},{"Url":"https://a.com/2","ZipPath":"file2.jpg"}]}`)
+
+func TestUnmarshalJsonValidLegacy(t *testing.T) {
+	r, err := zip_streamer.UnmarshalJsonZipDescriptor(validPayloadLegacy)
+
+	if err != nil {
+		t.Fatalf("couldn't parse empty payload: %v", err)
+	}
+	if len(r.Files()) != 2 {
+		t.Fatalf("incorrect entry count %v", len(r.Files()))
+	}
+	if r.Files()[0].Url().String() != "https://a.com/1" || r.Files()[1].ZipPath() != "file2.jpg" {
+		t.Fatal("invalid parsing")
+	}
+}
+
+var validPayload = []byte(`{"files": [{"url":"https://a.com/1","zipPath":"file1.jpg"},{"url":"https://a.com/2","zipPath":"file2.jpg"}]}`)
 
 func TestUnmarshalJsonValid(t *testing.T) {
 	r, err := zip_streamer.UnmarshalJsonZipDescriptor(validPayload)

@@ -48,12 +48,15 @@ func (zd ZipDescriptor) Files() []*FileEntry {
 }
 
 type jsonZipEntry struct {
-	Url     string `json:"Url"`
-	ZipPath string `json:"ZipPath"`
+	DeprecatedCapitalizedUrl     string `json:"Url"`
+	DeprecatedCapitalizedZipPath string `json:"ZipPath"`
+	Url                          string `json:"url"`
+	ZipPath                      string `json:"zipPath"`
 }
 
 type jsonZipPayload struct {
-	Entries           []jsonZipEntry `json:"entries"`
+	Files             []jsonZipEntry `json:"files"`
+	DeprecatedEntries []jsonZipEntry `json:"entries"`
 	SuggestedFilename string         `json:"suggestedFilename"`
 }
 
@@ -66,8 +69,25 @@ func UnmarshalJsonZipDescriptor(payload []byte) (*ZipDescriptor, error) {
 
 	zd := NewZipDescriptor()
 	zd.suggestedFilenameRaw = parsed.SuggestedFilename
-	for _, entry := range parsed.Entries {
-		fileEntry, err := NewFileEntry(entry.Url, entry.ZipPath)
+
+	// Maintain backwards compatibility when files were named `entries`
+	jsonZipFileList := parsed.Files
+	if len(jsonZipFileList) == 0 {
+		jsonZipFileList = parsed.DeprecatedEntries
+	}
+
+	for _, jsonZipFileItem := range jsonZipFileList {
+		// Maintain backwards compatibility for non camel case parameters
+		jsonFileItemUrl := jsonZipFileItem.Url
+		if jsonFileItemUrl == "" {
+			jsonFileItemUrl = jsonZipFileItem.DeprecatedCapitalizedUrl
+		}
+		jsonFileItemZipPath := jsonZipFileItem.ZipPath
+		if jsonFileItemZipPath == "" {
+			jsonFileItemZipPath = jsonZipFileItem.DeprecatedCapitalizedZipPath
+		}
+
+		fileEntry, err := NewFileEntry(jsonFileItemUrl, jsonFileItemZipPath)
 		if err == nil {
 			zd.files = append(zd.files, fileEntry)
 		}
