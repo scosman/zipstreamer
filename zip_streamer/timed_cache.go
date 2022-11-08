@@ -17,17 +17,17 @@ func NewLinkCache(timeout *time.Duration) LinkCache {
 	}
 }
 
-func (c *LinkCache) Get(linkKey string) (entries []*FileEntry) {
+func (c *LinkCache) Get(linkKey string) *ZipDescriptor {
 	result, ok := c.cache.Load(linkKey)
 	if ok {
-		return result.([]*FileEntry)
+		return result.(*ZipDescriptor)
 	} else {
 		return nil
 	}
 }
 
-func (c *LinkCache) Set(linkKey string, entries []*FileEntry) {
-	c.cache.Store(linkKey, entries)
+func (c *LinkCache) Set(linkKey string, descriptor *ZipDescriptor) {
+	c.cache.Store(linkKey, descriptor)
 
 	if c.timeout != nil {
 		go func() {
