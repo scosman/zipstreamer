@@ -1,4 +1,4 @@
-<h1 align="center"><img alt="Zipstreamer Logo" src="https://user-images.githubusercontent.com/848343/200610334-9e5f681b-878a-44d8-9b29-f58399549f8c.png" width="240"></h1>
+<h1 align="center"><img alt="Zipstreamer Logo" src="https://user-images.githubusercontent.com/848343/200652990-70e5f59d-c699-42ed-9a4f-a92cdfddda0d.png" width="300"></h1>
 
 [![Build and Test](https://github.com/scosman/zipstreamer/actions/workflows/test.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/test.yml)
 [![Format and Vet](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml)
@@ -166,3 +166,6 @@ These environment variables can be used to config the server:
 
 I was mentoring at a "Teens Learning Code" class, but we had too many mentors, so I had some downtime.
 
+## Logo
+
+Zipper portion of logo by Kokota from Noun Project (Creative Commons CCBY)
