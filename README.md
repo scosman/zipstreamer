@@ -12,6 +12,7 @@ Highlights include:
  - Low memory: the files are streamed out to the client immediately
  - Low CPU: the default server doesn't compress files, only packages them into a zip, so there's minimal CPU load (configurable)
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
+ - [Easy to host](#deploy-a): several deployment options, including Docker images and two one-click deployers
  - It includes a HTTP server, but can be used as a library (see `zip_streamer.go`)
 
 ## Content
