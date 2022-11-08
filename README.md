@@ -1,16 +1,15 @@
+<h1 align="center"><img alt="Zipstreamer Logo" src="https://user-images.githubusercontent.com/848343/200590777-b1bb9c3f-f2d9-4206-984d-dc0b0174e3b9.png" width="240"></h1>
 
 [![Build and Test](https://github.com/scosman/zipstreamer/actions/workflows/test.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/test.yml)
 [![Format and Vet](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml)
 [![Docker Generation](https://github.com/scosman/zipstreamer/actions/workflows/publish.yml/badge.svg)](https://github.com/scosman/zipstreamer/pkgs/container/packages%2Fzipstreamer)
 
-## About
-
-ZipStreamer is a golang project for building and streaming zip files from a series of web links. For example, if you have 200 files on S3, and you want to download a zip file of them, you can do so in 1 request to this server.
+**ZipStreamer** is a golang microservice for streaming zip files from a series of web links. For example, if you have 200 files on S3, and you want to download a zip file of them, you can do so in 1 request to this server.
 
 Highlights include:
 
  - Low memory: the files are streamed out to the client immediately
- - Low CPU: the default server doesn't compress files, only packages them into a zip, so there's minimal CPU load (configurable)
+ - Low CPU: the default server doesn't compress files, only packages them into a zip, so there's minimal CPU load ([configurable](#customize-a))
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
  - [Easy to host](#deploy-a): several deployment options, including Docker images and two one-click deployers
  - It includes a HTTP server, but can be used as a library (see `zip_streamer.go`)
