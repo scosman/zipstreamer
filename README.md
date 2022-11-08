@@ -14,7 +14,22 @@ Highlights include:
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
  - It includes a HTTP server, but can be used as a library (see `zip_streamer.go`)
 
-## JSON Zip File Descriptor
+## Content
+
+ - [JSON Zip File Descriptor](#json-descriptor-a)
+ - [HTTP Endpoints](#http-endpoints-a)
+   - [POST /download](#post-download-a)
+   - [GET /download](#get-download-a)
+   - [POST /create_download_link](#post-create-a)
+   - [GET /download_link/{link_id}](#get-link-a)
+ - [Deploy](#deploy-a)
+   - [Heroku - One Click Deploy](#deploy-heroku-a)
+   - [Google Cloud Run - One Click Deploy, Serverless](#deploy-google-a)
+   - [Docker](#deploy-docker-a)
+ - [Customization and Configuration](#customize-a)
+
+<a name="json-descriptor-a"></a>
+## JSON Zip File Descriptor 
 
 Each HTTP endpoint requires a JSON description of the desired zip file. It includes a root object with the following structure:
 
@@ -41,12 +56,15 @@ Example JSON description with 2 files:
 }
 ```
 
+<a name="http-endpoints-a"></a>
 ## HTTP Endpoints
 
+<a name="post-download-a"></a>
 ### POST /download
 
 This endpoint takes a http POST body containing the JSON description of the desired zip file, and returns a zip file.
 
+<a name="get-download-a"></a>
 ### GET /download
 
 Returns a zip file, from a JSON zip description hosted on another server. This is useful over the POST endpoint in a few use cases:
@@ -60,6 +78,7 @@ This endpoint requires one of two query parameters describing where to find the 
  - `zsurl`: the full URL to the JSON file describing the zip. Example: `zipstreamer.yourserver.com/download?zsurl=https://gist.githubusercontent.com/scosman/449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
  - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://gist.githubusercontent.com/scosman/"` and `zipstreamer.yourserver.com/download?zsid=449df713f97888b931c7b4e4f76f82b1/raw/82a1b54cd20ab44a916bd76a5b5d866acee2b29a/listfile.json`
 
+<a name="post-create-a"></a>
 ### POST /create_download_link
 
 This endpoint takes the JSON zip description in the POST body, stores it in a local cache, allowing the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
@@ -80,18 +99,22 @@ Here is an example response body containing the link ID. See docs for `GET /down
 }
 ```
 
+<a name="get-link-a"></a>
 ### GET /download_link/{link_id}
 
 Call this endpoint with a `link_id` generated with `/create_download_link` to download that zip file.
 
+<a name="deploy-a"></a>
 ## Deploy
 
+<a name="deploy-heroku-a"></a>
 ### Heroku - One Click Deploy
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/scosman/zipstreamer/tree/master)
 
 Be sure to enable [session affinity](https://devcenter.heroku.com/articles/session-affinity) if you're using multiple servers and using `/create_download_link`.
 
+<a name="deploy-google-a"></a>
 ### Google Cloud Run - One Click Deploy, Serverless
 
 [<img src="https://deploy.cloud.run/button.svg" width=180 alt="Run on Google Cloud">](https://deploy.cloud.run?git_repo=https%3A%2F%2Fgithub.com%2Fscosman%2Fzipstreamer)
@@ -102,6 +125,7 @@ Be sure to enable [session affinity](https://devcenter.heroku.com/articles/sessi
 
 Cloud Run is ideal for zipstreamer, as it routes many requests to a single container instance. Zipstreamer is designed to handle many concurrent requests, and will be cheaper to run on this serverless architecture than a instance-per-request architecture like AWS Lamba or Google Cloud Functions.
 
+<a name="deploy-docker-a"></a>
 ### Docker 
 
 This repo contains an dockerfile, and an image is published [on Github Packages](https://github.com/scosman/zipstreamer/pkgs/container/packages%2Fzipstreamer).
@@ -128,9 +152,10 @@ docker run --env PORT=8080 -p 8080:8080 ghcr.io/scosman/packages/zipstreamer:sta
 
 Note: `stable` pulls the latest github release. Use `ghcr.io/scosman/packages/zipstreamer:latest` for top of tree.
 
-## Config
+<a name="customize-a"></a>
+## Customization and Configuration
 
-These ENV vars can be used to config the server:
+These environment variables can be used to config the server:
 
  - `PORT` - Defaults to 4008. Sets which port the HTTP server binds to.
  - `ZS_URL_PREFIX` - If set, requires that the URL of files downloaded start with this prefix. Useful to preventing others from using your server to serve their files.
