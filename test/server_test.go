@@ -31,7 +31,7 @@ var jsonDescriptorToValidate = []byte(`{
 	]
   }`)
 
-func checkBodyHasZipFile(rr *httptest.ResponseRecorder, t *testing.T) {
+func checkResponseZipFile(rr *httptest.ResponseRecorder, t *testing.T) {
 	// Check headers
 	if rr.Result().Header.Get("Content-Type") != "application/zip" {
 		t.Fatalf("Not zip content type")
@@ -59,7 +59,7 @@ func checkBodyHasZipFile(rr *httptest.ResponseRecorder, t *testing.T) {
 		t.Errorf("Expected file 1 to have size 110, got: %v", zipReader.File[0].FileHeader.FileInfo().Size())
 	}
 	if zipReader.File[1].FileHeader.FileInfo().Size() != 110 {
-		t.Errorf("Expected file 2 to have size 11-, got: %v", zipReader.File[1].FileHeader.FileInfo().Size())
+		t.Errorf("Expected file 2 to have size 110, got: %v", zipReader.File[1].FileHeader.FileInfo().Size())
 	}
 }
 
@@ -74,7 +74,7 @@ func TestServerGetDownloadZsurl(t *testing.T) {
 	zipServer.ServeHTTP(rr, req)
 
 	checkHttpOk(rr, t)
-	checkBodyHasZipFile(rr, t)
+	checkResponseZipFile(rr, t)
 }
 
 func TestServerGetDownloadZsid(t *testing.T) {
@@ -89,7 +89,7 @@ func TestServerGetDownloadZsid(t *testing.T) {
 	zipServer.ServeHTTP(rr, req)
 
 	checkHttpOk(rr, t)
-	checkBodyHasZipFile(rr, t)
+	checkResponseZipFile(rr, t)
 }
 
 func TestServerPostDownload(t *testing.T) {
@@ -103,7 +103,7 @@ func TestServerPostDownload(t *testing.T) {
 	zipServer.ServeHTTP(rr, req)
 
 	checkHttpOk(rr, t)
-	checkBodyHasZipFile(rr, t)
+	checkResponseZipFile(rr, t)
 }
 
 type jsonZipPayload struct {
@@ -137,5 +137,5 @@ func TestServerCreateAndGet(t *testing.T) {
 	zipServer.ServeHTTP(rrGet, getReq)
 
 	checkHttpOk(rrGet, t)
-	checkBodyHasZipFile(rrGet, t)
+	checkResponseZipFile(rrGet, t)
 }
