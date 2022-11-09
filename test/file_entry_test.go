@@ -26,13 +26,13 @@ func TestFileEntryInvalidUrl(t *testing.T) {
 	f, err := zip_streamer.NewFileEntry("ftp://sdfs/sdf.c", "mona.jpg")
 
 	if err == nil || f != nil {
-		t.Fatal("accpeted non web url")
+		t.Fatal("accepted non web url")
 	}
 
 	f, err = zip_streamer.NewFileEntry("/sdfs/sdf.c", "mona.jpg")
 
 	if err == nil || f != nil {
-		t.Fatal("accpeted local url")
+		t.Fatal("accepted local url")
 	}
 }
 

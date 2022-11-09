@@ -1,10 +1,11 @@
 package testing
 
 import (
-	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
 var validFileEntry, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/DPRhf4ZX0AAFW1_.jpg", "mona.jpg")
@@ -38,7 +39,7 @@ func TestWriteZip(t *testing.T) {
 	}
 	err = z.StreamAllFiles()
 	if err != nil {
-		t.Fatalf("issue writting zip: %v", err)
+		t.Fatalf("issue writing zip: %v", err)
 	}
 	newfile.Close()
 
@@ -58,7 +59,7 @@ func TestWriteZipWithSomeInvalid(t *testing.T) {
 	}
 	err = z.StreamAllFiles()
 	if err != nil {
-		t.Fatalf("issue writting zip: %v", err)
+		t.Fatalf("issue writing zip: %v", err)
 	}
 	newfile.Close()
 
