@@ -34,9 +34,9 @@ Highlights include:
 
 Each HTTP endpoint requires a JSON description of the desired zip file. It includes a root object with the following structure:
 
- - `suggestedFilename` [optional, string]: The filename to suggest in the "Save As" UI in browsers. Defaults to `archive.zip` if not provided or invalid. [Limited to US-ASCII.](https://www.rfc-editor.org/rfc/rfc2183#section-2.3)
- - `files` [Required, array]: an array descibing the files to inclue in the zip file. Each array entry required 2 properties:
-    - `url` [Required, string]: the URL of the file to include in the zip. Zipstreamer will fetch this via a GET request. The file must be publically accessible via this URL; most file hosts provide query string authentication options which work well with Zipstreamer (example [AWS S3 Docs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html)).
+ - `suggestedFilename` [Optional, string]: The filename to suggest in the "Save As" UI in browsers. Defaults to `archive.zip` if not provided or invalid. [Limited to US-ASCII.](https://www.rfc-editor.org/rfc/rfc2183#section-2.3)
+ - `files` [Required, array]: an array descibing the files to include in the zip file. Each array entry required 2 properties:
+    - `url` [Required, string]: the public URL of the file to include in the zip. Zipstreamer will fetch this via a GET request. The file must be publically accessible via this URL; if you're files are private, most file hosts provide query string authentication options which work well with Zipstreamer (example [AWS S3 Docs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html)).
     - `zipPath`  [Required, string]: the path and filename where this entry should appear in the resulting zip file. This is a relative path to the root of the zip file.
 
 Example JSON description with 2 files:
