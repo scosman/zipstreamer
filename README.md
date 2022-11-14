@@ -84,7 +84,7 @@ This endpoint requires one of two query parameters describing where to find the 
 
 This endpoint takes a http POST body containing the [JSON zip file descriptor](#json-descriptor-a), stores it in a local cache, and returns a link ID which allows the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
 
-This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` if for a server side method to achieve this.
+This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` for a server side method to achieve this.
 
 *Important*:
 
