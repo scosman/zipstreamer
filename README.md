@@ -63,16 +63,16 @@ Example JSON description with 2 files:
 <a name="post-download-a"></a>
 ### POST /download
 
-This endpoint takes a http POST body containing the JSON zip file descriptor, and returns a zip file.
+This endpoint takes a http POST body containing the [JSON zip file descriptor](#json-descriptor-a), and returns a zip file.
 
 <a name="get-download-a"></a>
 ### GET /download
 
-Returns a zip file, from a JSON zip file descriptor hosted on another server. This is useful over the POST endpoint in a few use cases:
+This endpoint fetches a [JSON zip file descriptor](#json-descriptor-a) hosted on another server, and returns a zip file. This is useful over the `POST /download` endpoint for a few use cases:
 
  - You want to hide from the client where the original files are hosted (see `zsid` parameter)
  - Use cases where POST requests aren't easy to adopt (traditional static webpages)
- - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` if you prefer a client side method to achieve this.
+ - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` if you prefer a client side method to achieve this, which doesn't require another host for the zip descriptor files.
 
 This endpoint requires one of two query parameters describing where to find the JSON zip file descriptor:
 
@@ -82,9 +82,9 @@ This endpoint requires one of two query parameters describing where to find the 
 <a name="post-create-a"></a>
 ### POST /create_download_link
 
-This endpoint takes the JSON zip file descriptor in the POST body, stores it in a local cache, returns a link ID which allows the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
+This endpoint takes a http POST body containing the [JSON zip file descriptor](#json-descriptor-a), stores it in a local cache, and returns a link ID which allows the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
 
-This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` if you prefer a server side method to achieve this.
+This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` if for a server side method to achieve this.
 
 *Important*:
 
