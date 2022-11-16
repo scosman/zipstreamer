@@ -4,6 +4,7 @@
 [![Format and Vet](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml/badge.svg)](https://github.com/scosman/zipstreamer/actions/workflows/format_check.yml)
 [![Docker Generation](https://github.com/scosman/zipstreamer/actions/workflows/publish.yml/badge.svg)](https://github.com/scosman/zipstreamer/pkgs/container/packages%2Fzipstreamer)
 [![Go Report Card](https://goreportcard.com/badge/github.com/scosman/zipstreamer)](https://goreportcard.com/report/github.com/scosman/zipstreamer)
+[![Go Reference](https://pkg.go.dev/badge/github.com/scosman/zipstreamer.svg)](https://pkg.go.dev/github.com/scosman/zipstreamer)
 
 **ZipStreamer** is a golang microservice for streaming zip files from a series of web links, on the fly. For example, if you have 200 files on S3, and you want to download a zip file of them, you can do so in 1 request to this server.
 
