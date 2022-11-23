@@ -106,7 +106,7 @@ func TestServerPostDownload(t *testing.T) {
 	checkResponseZipFile(rr, t)
 }
 
-type jsonZipPayload struct {
+type jsonCreateLinkPayload struct {
 	Status string `json:"status"`
 	LinkId string `json:"link_id"`
 }
@@ -122,13 +122,13 @@ func TestServerCreateAndGet(t *testing.T) {
 	zipServer.ServeHTTP(rrCreate, createReq)
 	checkHttpOk(rrCreate, t)
 
-	var createResponseParsed jsonZipPayload
+	var createResponseParsed jsonCreateLinkPayload
 	err = json.Unmarshal(rrCreate.Body.Bytes(), &createResponseParsed)
 	if err != nil || createResponseParsed.Status != "ok" {
 		t.Fatalf("Create link request failed (%v): %v", createResponseParsed.Status, err)
 	}
 
-	getReq, err := http.NewRequest("GET", "/download_link/"+createResponseParsed.LinkId, bytes.NewReader(jsonDescriptorToValidate))
+	getReq, err := http.NewRequest("GET", "/download_link/"+createResponseParsed.LinkId, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
