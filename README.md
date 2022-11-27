@@ -157,10 +157,8 @@ curl --data-binary "@./zipJsonDescriptor.json" http://localhost:4008/create_down
 # Note: must copy UUID from output of above command into this URL
 curl -X GET "http://localhost:4008/download_link/UUID_FROM_ABOVE" > archive.zip
 ```
-
 </details>
 
-#### GET endpoint with zsurl parameter
 <a name="deploy-a"></a>
 ## Deploy
 
