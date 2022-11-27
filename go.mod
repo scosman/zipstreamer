@@ -8,7 +8,4 @@ require (
 	github.com/gorilla/mux v1.8.0
 )
 
-require (
-	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
-)
+require github.com/felixge/httpsnoop v1.0.3 // indirect
