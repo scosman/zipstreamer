@@ -28,7 +28,7 @@ Highlights include:
    - [Heroku - One Click Deploy](#deploy-heroku-a)
    - [Google Cloud Run - One Click Deploy, Serverless](#deploy-google-a)
    - [Docker](#deploy-docker-a)
- - [Customization and Configuration](#customize-a)
+ - [Configuration Options](#customize-a)
 
 <a name="json-descriptor-a"></a>
 ## JSON Zip File Descriptor 
@@ -62,47 +62,47 @@ Example JSON description with 2 files:
 ## HTTP Endpoints
 
 <a name="post-download-a"></a>
-### POST /download
+### `POST /download`
 
 This endpoint takes a http POST body containing the [JSON zip file descriptor](#json-descriptor-a), and returns a zip file.
 
 <details>
-  <summary>Example usage</summary>
+  <summary>Example usage with curl</summary>
 
-#### Example usage of POST endpoint
+#### Example curl usage of `POST /download` endpoint
 
 ```
-# download a json descriptor
+# download a sample json descriptor
 curl https://gist.githubusercontent.com/scosman/f57a3561fed98caab2d0ae285a0d7251/raw/4a9630951373e50f467f41d8c7b9d440c13a14d2/zipJsonDescriptor.json > zipJsonDescriptor.json
-# call POST endpoint
+# call POST /download endpoint, passing json descriptor in body
 curl --data-binary "@./zipJsonDescriptor.json" http://localhost:4008/download > archive.zip
 ```
 </details>
 
 <a name="get-download-a"></a>
-### GET /download
+### `GET /download`
 
 This endpoint fetches a [JSON zip file descriptor](#json-descriptor-a) hosted on another server, and returns a zip file. This is useful over the `POST /download` endpoint for a few use cases:
 
  - You want to hide from the client where the original files are hosted (see `zsid` parameter)
  - Use cases where POST requests aren't easy to adopt (traditional static webpages)
- - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` if you prefer a client side method to achieve this, which doesn't require another host for the zip descriptor files.
+ - You want to trigger a browsers' "Save File" UI, which isn't shown for POST requests. See `POST /create_download_link` for a client side alternitive to achieve this.
 
 This endpoint requires one of two query parameters describing where to find the JSON zip file descriptor:
 
  - `zsurl`: the full URL to the JSON file describing the zip. Example: `/download?zsurl=https://yourserver.com/path_to_descriptors/82a1b54cd20ab44a916bd76a5`
- - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://yoursever.com/path_to_descriptors/"` and `download?zsid=82a1b54cd20ab44a916bd76a5`
+ - `zsid`: must be used with the `ZS_LISTFILE_URL_PREFIX` environment variable. The JSON file will be fetched from `ZS_LISTFILE_URL_PREFIX + zsid`. This allows you to hide the full URL path from clients, revealing only the end of the URL. Example: `ZS_LISTFILE_URL_PREFIX = "https://yoursever.com/path_to_descriptors/"` and `/download?zsid=82a1b54cd20ab44a916bd76a5`
 
 <details>
-  <summary>Example usage</summary>
+  <summary>Example usage with curl</summary>
 
-#### Example usage GET endpoint with zsurl parameter
+#### Example curl usage of `GET /download` endpoint with zsurl parameter
 
 ```
 curl -X GET "http://localhost:4008/download?zsurl=https://gist.githubusercontent.com/scosman/f57a3561fed98caab2d0ae285a0d7251/raw/4a9630951373e50f467f41d8c7b9d440c13a14d2/zipJsonDescriptor.json" > archive.zip
 ```
 
-#### Example usage of GET endpoint with zsid parameter
+#### Example curl usage of `GET /download` endpoint with zsid parameter
 
 ```
 # start server with ZS_LISTFILE_URL_PREFIX
@@ -110,18 +110,18 @@ ZS_LISTFILE_URL_PREFIX="https://gist.githubusercontent.com/scosman/" ./zipstream
 ```
 
 ```
-# call GET endpoint with zsid
+# call `GET /download` endpoint with zsid
 curl -X GET "http://localhost:4008/download?zsid=f57a3561fed98caab2d0ae285a0d7251/raw/4a9630951373e50f467f41d8c7b9d440c13a14d2/zipJsonDescriptor.json" > archive.zip
 ```
 
 </details>
 
 <a name="post-create-a"></a>
-### POST /create_download_link
+### `POST /create_download_link`
 
 This endpoint takes a http POST body containing the [JSON zip file descriptor](#json-descriptor-a), stores it in a local cache, and returns a link ID which allows the caller to fetch the zip file via an additional call to `GET /download_link/{link_id}`.
 
-This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` for a server side method to achieve this.
+This is useful for if you want to trigger a browser "Save File" UI, which isn't shown for POST requests. See `GET /download` for a server side alternative to achieve this.
 
 *Important*:
 
@@ -140,21 +140,21 @@ Here is an example response body containing the link ID. See docs for `GET /down
 Example usage: see `GET /download_link/{link_id}` documentation below.
 
 <a name="get-link-a"></a>
-### GET /download_link/{link_id}
+### `GET /download_link/{link_id}`
 
 Call this endpoint with a `link_id` generated with `/create_download_link` to download that zip file.
 
 <details>
-  <summary>Example usage</summary>
+  <summary>Example usage with curl</summary>
 
-#### Example usage of create_download_link and download_link endpoints
+#### Example curl usage of `POST /create_download_link` and `GET /download_link/{link_id}` endpoints working together
 
 ```
-# download a json descriptor
+# download a sample json descriptor
 curl https://gist.githubusercontent.com/scosman/f57a3561fed98caab2d0ae285a0d7251/raw/4a9630951373e50f467f41d8c7b9d440c13a14d2/zipJsonDescriptor.json > zipJsonDescriptor.json
 # call POST endpoint to create link
 curl --data-binary "@./zipJsonDescriptor.json" http://localhost:4008/create_download_link
-# Note: must copy UUID from output of above command into this URL
+# Call GET endpoint to download zip. Note: must copy UUID from output of above POST command into this URL
 curl -X GET "http://localhost:4008/download_link/UUID_FROM_ABOVE" > archive.zip
 ```
 </details>
@@ -208,7 +208,7 @@ docker run --env PORT=8080 -p 8080:8080 ghcr.io/scosman/packages/zipstreamer:sta
 Note: `stable` pulls the latest github release. Use `ghcr.io/scosman/packages/zipstreamer:latest` for top of tree.
 
 <a name="customize-a"></a>
-## Customization and Configuration
+## Configuration Options
 
 These environment variables can be used to configure the server:
 
