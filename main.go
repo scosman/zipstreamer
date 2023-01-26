@@ -29,18 +29,22 @@ func main() {
 	}
 
 	log.Printf("Server starting on port %s", port)
+	shutdownChannel := make(chan os.Signal, 10)
 	go func() {
 		err := httpServer.ListenAndServe()
 
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Server Error: %s", err)
 		}
+
+		shutdownChannel <- syscall.SIGABRT
 	}()
 
-	// Gracefully shutdown when SIGTERM is received
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
-	<-sig
-	log.Print("Received SIGTERM, shutting down...")
+	// Listen for os signal for graceful shutdown
+	signal.Notify(shutdownChannel, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+	// Wait for shutdown signal, then shut down
+	shutdownSignal := <-shutdownChannel
+	log.Printf("Received signal (%s), shutting down...", shutdownSignal.String())
 	httpServer.Shutdown(context.Background())
 }
