@@ -30,7 +30,11 @@ func main() {
 
 	log.Printf("Server starting on port %s", port)
 	go func() {
-		httpServer.ListenAndServe()
+		err := httpServer.ListenAndServe()
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	// Gracefully shutdown when SIGTERM is received
