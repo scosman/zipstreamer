@@ -32,12 +32,10 @@ func main() {
 	shutdownChannel := make(chan os.Signal, 10)
 	go func() {
 		err := httpServer.ListenAndServe()
-
 		if err != nil {
 			log.Printf("Server Error: %s", err)
 		}
-
-		shutdownChannel <- syscall.SIGABRT
+		shutdownChannel <- syscall.SIGUSR1
 	}()
 
 	// Listen for os signal for graceful shutdown
