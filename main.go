@@ -32,7 +32,7 @@ func main() {
 	go func() {
 		log.Printf("Server starting on port %s", port)
 		err := httpServer.ListenAndServe()
-		if err != nil {
+		if err != nil && err != http.ErrServerClosed {
 			log.Printf("Server Error: %s", err)
 		}
 		shutdownChannel <- syscall.SIGUSR1
