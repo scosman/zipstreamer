@@ -29,12 +29,12 @@ func NewZipStream(entries []*FileEntry, w io.Writer) (*ZipStream, error) {
 	return &z, nil
 }
 
-func (z *ZipStream) StreamAllFiles() error {
+func (z *ZipStream) StreamAllFiles(maxUpstreamRetries int) error {
 	zipWriter := zip.NewWriter(z.destination)
 	success := 0
 
 	for _, entry := range z.entries {
-		resp, err := http.Get(entry.Url().String())
+		resp, err := retryableGet(entry.Url().String(), maxUpstreamRetries)
 		if err != nil {
 			continue
 		}
@@ -72,4 +72,21 @@ func (z *ZipStream) StreamAllFiles() error {
 	}
 
 	return zipWriter.Close()
+}
+
+func retryableGet(url string, maxRetries int) (*http.Response, error) {
+	var err error
+
+	for i := 0; i < maxRetries+1; i++ {
+		resp, err := http.Get(url)
+		if err != nil {
+			// TODO: exponential backoff?
+			time.Sleep(1)
+			continue
+		} else {
+			return resp, nil
+		}
+	}
+
+	return nil, err
 }

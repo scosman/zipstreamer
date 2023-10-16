@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -16,6 +17,15 @@ func main() {
 	zipServer := zip_streamer.NewServer()
 	zipServer.Compression = (os.Getenv("ZS_COMPRESSION") == "DEFLATE")
 	zipServer.ListfileUrlPrefix = os.Getenv("ZS_LISTFILE_URL_PREFIX")
+
+	maxUpstreamEntries, exists := os.LookupEnv("ZS_MAX_UPSTREAM_RETRIES")
+	if exists {
+		maxUpstreamRetries, err := strconv.Atoi(maxUpstreamEntries)
+		if err != nil {
+			log.Fatalf("Error parsing ZS_MAX_UPSTREAM_RETRIES: %v", err)
+		}
+		zipServer.MaxUpstreamRetries = maxUpstreamRetries
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {

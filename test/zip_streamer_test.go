@@ -12,6 +12,8 @@ var validFileEntry, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/D
 var validFileEntry2, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/DPRhf4ZX0AAFW1_.jpg", "nested-folder/mona2.jpg")
 var invalidFileEntry, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/fakeURL.jpg", "invalid.jpg")
 
+const maxUpstreamRetries = 0
+
 func TestZipStreamCosntructorEmpty(t *testing.T) {
 	z, err := zip_streamer.NewZipStream(make([]*zip_streamer.FileEntry, 0), ioutil.Discard)
 
@@ -37,7 +39,7 @@ func TestWriteZip(t *testing.T) {
 	if err != nil || z == nil {
 		t.Fatal("constructor failed")
 	}
-	err = z.StreamAllFiles()
+	err = z.StreamAllFiles(maxUpstreamRetries)
 	if err != nil {
 		t.Fatalf("issue writing zip: %v", err)
 	}
@@ -57,7 +59,7 @@ func TestWriteZipWithSomeInvalid(t *testing.T) {
 	if err != nil || z == nil {
 		t.Fatal("constructor failed")
 	}
-	err = z.StreamAllFiles()
+	err = z.StreamAllFiles(maxUpstreamRetries)
 	if err != nil {
 		t.Fatalf("issue writing zip: %v", err)
 	}
@@ -77,7 +79,7 @@ func TestWriteZipWithAllInvalid(t *testing.T) {
 	if err != nil || z == nil {
 		t.Fatal("constructor failed")
 	}
-	err = z.StreamAllFiles()
+	err = z.StreamAllFiles(maxUpstreamRetries)
 	if err == nil {
 		t.Fatalf("empty zip didn't error")
 	}

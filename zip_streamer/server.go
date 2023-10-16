@@ -14,10 +14,11 @@ import (
 )
 
 type Server struct {
-	router            *mux.Router
-	linkCache         LinkCache
-	Compression       bool
-	ListfileUrlPrefix string
+	router             *mux.Router
+	linkCache          LinkCache
+	Compression        bool
+	ListfileUrlPrefix  string
+	MaxUpstreamRetries int
 }
 
 func NewServer() *Server {
@@ -152,7 +153,7 @@ func (s *Server) streamEntries(zipDescriptor *ZipDescriptor, w http.ResponseWrit
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", zipDescriptor.EscapedSuggestedFilename()))
 	w.WriteHeader(http.StatusOK)
-	err = zipStreamer.StreamAllFiles()
+	err = zipStreamer.StreamAllFiles(s.MaxUpstreamRetries)
 
 	if err != nil {
 		// Close the connection so the client gets an error instead of 200 but invalid file
