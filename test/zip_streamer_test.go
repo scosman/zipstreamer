@@ -8,9 +8,9 @@ import (
 	zip_streamer "github.com/scosman/zipstreamer/zip_streamer"
 )
 
-var validFileEntry, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/DPRhf4ZX0AAFW1_.jpg", "mona.jpg")
-var validFileEntry2, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/DPRhf4ZX0AAFW1_.jpg", "nested-folder/mona2.jpg")
-var invalidFileEntry, _ = zip_streamer.NewFileEntry("https://pbs.twimg.com/media/fakeURL.jpg", "invalid.jpg")
+var validFileEntry, _ = zip_streamer.NewFileEntry("https://gist.githubusercontent.com/scosman/265617b16bb395850d1f0eefd25cc8e3/raw/ade5a9006493a16a57c6d24884b1e1d3978800ee/hello.txt", "hello.txt")
+var validFileEntry2, _ = zip_streamer.NewFileEntry("https://gist.githubusercontent.com/scosman/265617b16bb395850d1f0eefd25cc8e3/raw/ade5a9006493a16a57c6d24884b1e1d3978800ee/hello.txt", "nested-folder/hello.txt")
+var invalidFileEntry, _ = zip_streamer.NewFileEntry("https://gist.githubusercontent.com/scosman/265617b16bb395850d1f0eefd25cc8e3/raw/ade5a9006493a16a57c6d24884b1e1d3978800eksfjmsdklfjsdlkfjsdlkfj/fake.jpg", "invalid.jpg")
 
 func TestZipStreamCosntructorEmpty(t *testing.T) {
 	z, err := zip_streamer.NewZipStream(make([]*zip_streamer.FileEntry, 0), ioutil.Discard)
