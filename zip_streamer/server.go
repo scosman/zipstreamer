@@ -50,6 +50,11 @@ func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		return
 	}
+	if len(fileEntries.files) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(`{"status":"error","error":"no files to download"}`))
+		return
+	}
 
 	linkId := uuid.New().String()
 	s.linkCache.Set(linkId, fileEntries)

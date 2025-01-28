@@ -139,3 +139,41 @@ func TestServerCreateAndGet(t *testing.T) {
 	checkHttpOk(rrGet, t)
 	checkResponseZipFile(rrGet, t)
 }
+
+func TestServerCreateLinkNoFiles(t *testing.T) {
+	emptyFilesJson := []byte(`{
+		"suggestedFilename":"download.zip",
+		"files": []
+	}`)
+
+	req, err := http.NewRequest("POST", "/create_download_link", bytes.NewReader(emptyFilesJson))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	zipServer := zip_streamer.NewServer()
+	rr := httptest.NewRecorder()
+	zipServer.ServeHTTP(rr, req)
+
+	// Check for bad request status
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Fatalf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+
+	// Verify error message
+	var response struct {
+		Status string `json:"status"`
+		Error  string `json:"error"`
+	}
+	err = json.Unmarshal(rr.Body.Bytes(), &response)
+	if err != nil {
+		t.Fatalf("Failed to parse response JSON: %v", err)
+	}
+
+	expectedError := "no files to download"
+	if response.Status != "error" || response.Error != expectedError {
+		t.Errorf("Expected error response {status: 'error', error: '%s'}, got {status: '%s', error: '%s'}",
+			expectedError, response.Status, response.Error)
+	}
+}
