@@ -2,15 +2,29 @@ package zip_streamer
 
 import (
 	"errors"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"strings"
 )
 
+type ReaderFunc func() (io.ReadCloser, error)
+
 type FileEntry struct {
-	url     *url.URL
+	reader  ReaderFunc
 	zipPath string
+}
+
+func SimpleGet(url string) ReaderFunc {
+	return func() (io.ReadCloser, error) {
+		resp, err := http.Get(url)
+		if err != nil {
+			return nil, err
+		}
+		return resp.Body, nil
+	}
 }
 
 const UrlPrefixEnvVar = "ZS_URL_PREFIX"
@@ -37,14 +51,10 @@ func NewFileEntry(urlString string, zipPath string) (*FileEntry, error) {
 	}
 
 	f := FileEntry{
-		url:     url,
+		reader:  SimpleGet(urlString),
 		zipPath: zipPath,
 	}
 	return &f, nil
-}
-
-func (f *FileEntry) Url() *url.URL {
-	return f.url
 }
 
 func (f *FileEntry) ZipPath() string {
