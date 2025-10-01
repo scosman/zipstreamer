@@ -34,14 +34,11 @@ func (z *ZipStream) StreamAllFiles() error {
 	success := 0
 
 	for _, entry := range z.entries {
-		resp, err := http.Get(entry.Url().String())
+		r, err := entry.reader()
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			continue
-		}
+		defer r.Close()
 
 		header := &zip.FileHeader{
 			Name:     entry.ZipPath(),
@@ -53,7 +50,7 @@ func (z *ZipStream) StreamAllFiles() error {
 			return err
 		}
 
-		_, err = io.Copy(entryWriter, resp.Body)
+		_, err = io.Copy(entryWriter, r)
 		if err != nil {
 			return err
 		}
