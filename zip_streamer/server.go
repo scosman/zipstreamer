@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -63,7 +63,7 @@ func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) parseZipRequest(w http.ResponseWriter, req *http.Request) (*ZipDescriptor, error) {
-	body, err := ioutil.ReadAll(req.Body)
+	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"status":"error","error":"missing body"}`))
@@ -121,7 +121,7 @@ func retrieveZipDescriptorFromUrl(listfileUrl string) (*ZipDescriptor, error) {
 	if listfileResp.StatusCode != http.StatusOK {
 		return nil, errors.New("List File Server Error")
 	}
-	body, err := ioutil.ReadAll(listfileResp.Body)
+	body, err := io.ReadAll(listfileResp.Body)
 	if err != nil {
 		return nil, err
 	}

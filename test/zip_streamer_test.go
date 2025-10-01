@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -13,7 +13,7 @@ var validFileEntry2, _ = zip_streamer.NewFileEntry("https://gist.githubuserconte
 var invalidFileEntry, _ = zip_streamer.NewFileEntry("https://gist.githubusercontent.com/scosman/265617b16bb395850d1f0eefd25cc8e3/raw/ade5a9006493a16a57c6d24884b1e1d3978800eksfjmsdklfjsdlkfjsdlkfj/fake.jpg", "invalid.jpg")
 
 func TestZipStreamCosntructorEmpty(t *testing.T) {
-	z, err := zip_streamer.NewZipStream(make([]*zip_streamer.FileEntry, 0), ioutil.Discard)
+	z, err := zip_streamer.NewZipStream(make([]*zip_streamer.FileEntry, 0), io.Discard)
 
 	if err == nil || z != nil {
 		t.Fatal("allowed empty streamer")
@@ -21,7 +21,7 @@ func TestZipStreamCosntructorEmpty(t *testing.T) {
 }
 
 func TestZipStreamCosntructor(t *testing.T) {
-	z, err := zip_streamer.NewZipStream([]*zip_streamer.FileEntry{validFileEntry}, ioutil.Discard)
+	z, err := zip_streamer.NewZipStream([]*zip_streamer.FileEntry{validFileEntry}, io.Discard)
 
 	if err != nil || z == nil {
 		t.Fatal("constructor failed")
