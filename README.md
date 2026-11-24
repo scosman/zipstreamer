@@ -13,12 +13,14 @@ Highlights include:
  - Low memory: the files are streamed out to the client immediately
  - Low CPU: the default server doesn't compress files, only packages them into a zip, so there's minimal CPU load ([configurable](#customize-a))
  - High concurrency: the two properties above allow a single small server to stream hundreds of large zips simultaneous
+ - [Content-Length, resumable downloads and HTTP Range requests](#ranges-a) when file sizes and CRC-32 checksums are provided (similar to nginx [mod_zip](https://github.com/evanmiller/mod_zip))
  - [Easy to host](#deploy-a): several deployment options, including Docker images and two one-click deployers
  - It includes a HTTP server, but can be used as a library (see `zip_streamer.go`)
 
 ## Content
 
  - [JSON Zip File Descriptor](#json-descriptor-a)
+ - [Total Size, Resumable Downloads and Range Requests](#ranges-a)
  - [HTTP Endpoints](#http-endpoints-a)
    - [POST /download](#post-download-a)
    - [GET /download](#get-download-a)
@@ -39,6 +41,9 @@ Each HTTP endpoint requires a JSON description of the desired zip file. It inclu
  - `files` [Required, array]: an array descibing the files to include in the zip file. Each array entry required 2 properties:
     - `url` [Required, string]: the public URL of the file to include in the zip. Zipstreamer will fetch this via a GET request. The file must be publically accessible via this URL; if you're files are private, most file hosts provide query string authentication options which work well with Zipstreamer (example [AWS S3 Docs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html)).
     - `zipPath`  [Required, string]: the path and filename where this entry should appear in the resulting zip file. This is a relative path to the root of the zip file.
+    - `size` [Optional, integer]: the exact size of the file in bytes. See [Range Requests](#ranges-a).
+    - `crc32` [Optional, string or integer]: the CRC-32 checksum of the file. Either a hex string as used by nginx mod_zip (e.g. `"8a3f1b2c"`) or a decimal JSON number. See [Range Requests](#ranges-a).
+    - `modified` [Optional, string]: modification time of the file in RFC 3339 format (e.g. `"2024-05-06T07:08:10Z"`).
 
 Example JSON description with 2 files:
 
@@ -53,6 +58,48 @@ Example JSON description with 2 files:
     {
       "url":"https://server.com/image2.jpg",
       "zipPath":"in-a-sub-folder/image2.jpg"
+    }
+  ]
+}
+```
+
+<a name="ranges-a"></a>
+## Total Size, Resumable Downloads and Range Requests
+
+If **every** file in the descriptor has `size` and `crc32` set (and `ZS_COMPRESSION` is not enabled), ZipStreamer can calculate the exact bytes of the zip file before downloading any file. This is the same approach nginx [mod_zip](https://github.com/evanmiller/mod_zip) uses. In this mode:
+
+ - Responses include a `Content-Length` header, so browsers and download tools show the total size and progress.
+ - `HEAD` requests return the size without fetching any files.
+ - HTTP Range requests (`Range`, `If-Range`, multiple ranges) are supported on `GET` endpoints, so interrupted downloads can be resumed and download managers can download in parallel. ZipStreamer only fetches the parts of the source files it needs, using Range requests to your file server (if the file server doesn't support ranges, the skipped bytes are downloaded and discarded).
+ - An `ETag` header identifies the zip contents. It is derived from names, sizes, checksums and timestamps, not URLs, so expiring signed URLs can be rotated without breaking resumed downloads.
+ - `POST /create_download_link` additionally returns the zip size: `{"status":"ok","link_id":"...","size":123456}`.
+ - Files are stored uncompressed, with Zip64 used automatically for files larger than 4 GB or more than 65535 files.
+
+Notes:
+
+ - Sizes must be exact. If a source file can't be fetched or its size doesn't match, the response is aborted (in streaming mode failed files are skipped instead, which isn't possible when the size was already announced). ZipStreamer doesn't check the CRC-32 against the file contents, so an incorrect checksum produces a zip that reports CRC errors when extracted.
+ - Files without `modified` get a fixed timestamp (1980-01-01) so the zip bytes stay the same across requests, which resuming needs.
+ - Links from `/create_download_link` expire after 60 seconds, so resuming more than 60 seconds later needs `GET /download` (`zsurl`/`zsid`) or a new link.
+ - If any file lacks `size` or `crc32`, ZipStreamer falls back to regular streaming without `Content-Length` (`Accept-Ranges: none`).
+
+Example:
+
+```
+{
+  "suggestedFilename": "tps_reports.zip",
+  "files": [
+    {
+      "url":"https://server.com/image1.jpg",
+      "zipPath":"image1.jpg",
+      "size": 482713,
+      "crc32": "8a3f1b2c"
+    },
+    {
+      "url":"https://server.com/image2.jpg",
+      "zipPath":"in-a-sub-folder/image2.jpg",
+      "size": 1048576,
+      "crc32": "1d0c47e2",
+      "modified": "2024-05-06T07:08:10Z"
     }
   ]
 }

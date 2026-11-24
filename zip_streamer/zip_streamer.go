@@ -43,10 +43,14 @@ func (z *ZipStream) StreamAllFiles() error {
 			continue
 		}
 
+		modified := entry.Modified()
+		if modified.IsZero() {
+			modified = time.Now()
+		}
 		header := &zip.FileHeader{
 			Name:     entry.ZipPath(),
 			Method:   z.CompressionMethod,
-			Modified: time.Now(),
+			Modified: modified,
 		}
 		entryWriter, err := zipWriter.CreateHeader(header)
 		if err != nil {
