@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,9 +33,9 @@ func NewServer() *Server {
 	}
 
 	r.HandleFunc("/download", server.HandlePostDownload).Methods("POST")
-	r.HandleFunc("/download", server.HandleGetDownload).Methods("GET")
+	r.HandleFunc("/download", server.HandleGetDownload).Methods("GET", "HEAD")
 	r.HandleFunc("/create_download_link", server.HandleCreateLink).Methods("POST")
-	r.HandleFunc("/download_link/{link_id}", server.HandleDownloadLink).Methods("GET")
+	r.HandleFunc("/download_link/{link_id}", server.HandleDownloadLink).Methods("GET", "HEAD")
 
 	return &server
 }
@@ -58,8 +60,12 @@ func (s *Server) HandleCreateLink(w http.ResponseWriter, req *http.Request) {
 
 	linkId := uuid.New().String()
 	s.linkCache.Set(linkId, fileEntries)
+	sizeField := ""
+	if layout := s.zipLayout(fileEntries); layout != nil {
+		sizeField = `,"size":` + strconv.FormatInt(layout.Size(), 10)
+	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"ok","link_id":"` + linkId + `"}`))
+	w.Write([]byte(`{"status":"ok","link_id":"` + linkId + `"` + sizeField + `}`))
 }
 
 func (s *Server) parseZipRequest(w http.ResponseWriter, req *http.Request) (*ZipDescriptor, error) {
@@ -86,7 +92,7 @@ func (s *Server) HandlePostDownload(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.streamEntries(zipDescriptor, w)
+	s.streamEntries(zipDescriptor, w, req)
 }
 
 func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
@@ -109,7 +115,7 @@ func (s *Server) HandleGetDownload(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.streamEntries(zipDescriptor, w)
+	s.streamEntries(zipDescriptor, w, req)
 }
 
 func retrieveZipDescriptorFromUrl(listfileUrl string) (*ZipDescriptor, error) {
@@ -138,10 +144,33 @@ func (s *Server) HandleDownloadLink(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	s.streamEntries(zipDescriptor, w)
+	s.streamEntries(zipDescriptor, w, req)
 }
 
-func (s *Server) streamEntries(zipDescriptor *ZipDescriptor, w http.ResponseWriter) {
+// maxRanges limits the number of ranges in a single Range request. Each
+// range may cause an upstream request, so many tiny ranges are expensive.
+const maxRanges = 16
+
+// zipLayout returns the precomputed archive layout if the exact zip bytes
+// can be known up front (no compression, size and crc32 for every file),
+// otherwise nil.
+func (s *Server) zipLayout(zipDescriptor *ZipDescriptor) *ZipLayout {
+	if s.Compression || !CanBuildZipLayout(zipDescriptor.Files()) {
+		return nil
+	}
+	layout, err := NewZipLayout(zipDescriptor.Files())
+	if err != nil {
+		return nil
+	}
+	return layout
+}
+
+func (s *Server) streamEntries(zipDescriptor *ZipDescriptor, w http.ResponseWriter, req *http.Request) {
+	if layout := s.zipLayout(zipDescriptor); layout != nil {
+		s.serveZipLayout(layout, zipDescriptor, w, req)
+		return
+	}
+
 	zipStreamer, err := NewZipStream(zipDescriptor.Files(), w)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -156,11 +185,39 @@ func (s *Server) streamEntries(zipDescriptor *ZipDescriptor, w http.ResponseWrit
 	// need to write the header before bytes
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", zipDescriptor.EscapedSuggestedFilename()))
+	w.Header().Set("Accept-Ranges", "none")
 	w.WriteHeader(http.StatusOK)
+	if req.Method == http.MethodHead {
+		return
+	}
 	err = zipStreamer.StreamAllFiles()
 
 	if err != nil {
 		// Close the connection so the client gets an error instead of 200 but invalid file
+		closeForError(w)
+	}
+}
+
+// serveZipLayout serves an archive with known layout, supporting
+// Content-Length, HEAD, Range and If-Range requests.
+func (s *Server) serveZipLayout(layout *ZipLayout, zipDescriptor *ZipDescriptor, w http.ResponseWriter, req *http.Request) {
+	// Range handling is only defined for GET (and HEAD) per RFC 9110.
+	if (req.Method != http.MethodGet && req.Method != http.MethodHead) ||
+		strings.Count(req.Header.Get("Range"), ",") >= maxRanges {
+		req.Header.Del("Range")
+		req.Header.Del("If-Range")
+	}
+
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", zipDescriptor.EscapedSuggestedFilename()))
+	w.Header().Set("ETag", layout.ETag())
+
+	reader := NewZipLayoutReader(req.Context(), layout)
+	defer reader.Close()
+	http.ServeContent(w, req, "", time.Time{}, reader)
+
+	if reader.Err() != nil {
+		// Close the connection so the client gets an error instead of a truncated file
 		closeForError(w)
 	}
 }
